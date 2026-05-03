@@ -1,0 +1,38 @@
+FROM gradle:8.5-jdk21
+
+WORKDIR /app
+
+CMD ["sh"]
+
+FROM gradle:8.5-jdk21
+
+WORKDIR /app
+
+# Basic tools install
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl unzip zip wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Trivy
+RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+# Install OWASP Dependency-Check
+ENV DEPENDENCY_CHECK_VERSION=10.0.4
+RUN wget https://github.com/jeremylong/DependencyCheck/releases/download/v${DEPENDENCY_CHECK_VERSION}/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip \
+    && unzip dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip -d /opt/ \
+    && rm dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip \
+    && ln -s /opt/dependency-check/bin/dependency-check.sh /usr/local/bin/dependency-check \
+    && chmod +x /usr/local/bin/dependency-check
+
+# Create cache and report directories
+RUN mkdir -p /app/build/reports /tmp/trivy-cache /tmp/.gradle
+
+# Important: Change ownership to gradle user (Jenkins ke liye zaroori)
+RUN chown -R gradle:gradle /app /tmp
+
+# Switch to gradle user
+USER gradle
+
+CMD ["sh"]
+
+

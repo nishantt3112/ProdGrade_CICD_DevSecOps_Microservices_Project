@@ -1,0 +1,52 @@
+@Library('shared_library') _
+
+def svc = 'productcatalogservice'
+
+ciPipeline(
+
+    serviceName: svc,
+
+    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/productcatalogservice',
+
+    dockerCiPrebakedImage: 'nishant1994docker/checkoutservice-prebaked:owasp-trivy-sonar-1',
+
+    dockerCIPrebakedImageArgs: '-u root',
+
+    programmingLanguage: 'go',
+
+    servicePath: '.',
+
+    buildAndTestCmd: """
+        echo "=== GO BUILD ==="
+        export GOTOOLCHAIN=auto
+        go mod download
+        go build -o productcatalogservice
+    """,
+
+    sonarCmd: """
+        sonar-scanner \\
+          -Dsonar.projectKey=productcatalogservice \\
+          -Dsonar.sources=. \\
+          -Dsonar.host.url=\$SONAR_HOST_URL \\
+          -Dsonar.login=\$SONAR_AUTH_TOKEN
+    """,
+
+    trivyScanCmd: """
+        echo "=== Trivy Scan ==="
+
+        trivy fs . \\
+          --severity MEDIUM,LOW \\
+          --format table \\
+          --exit-code 0 \\
+          --no-progress \\
+          --cache-dir \$WORKSPACE/.trivy-cache \\
+          --output trivy-report.txt
+    """,
+
+    jUnitReportPath: '',
+
+    archiveReports: """
+        trivy-report.txt
+    """
+
+)

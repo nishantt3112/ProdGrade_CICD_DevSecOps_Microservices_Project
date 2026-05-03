@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+
+WORKDIR /app
+
+# copy project files first (cache optimization)
+COPY *.csproj ./
+RUN dotnet restore
+
+# copy full source
+COPY . ./
+
+# build only (NO TESTS)
+RUN dotnet build -c Release --no-restore
+
+# optional: run sonar inside container if needed
+# RUN dotnet sonarscanner begin ...
+
+CMD ["bash"]

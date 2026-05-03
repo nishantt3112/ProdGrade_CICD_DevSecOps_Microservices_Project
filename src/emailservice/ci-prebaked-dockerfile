@@ -1,0 +1,61 @@
+FROM python:3.11-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# -----------------------------
+# Base CI tools (minimal but complete)
+# -----------------------------
+RUN apt-get update && apt-get install -y \
+    bash \
+    curl \
+    wget \
+    git \
+    unzip \
+    ca-certificates \
+    openjdk-21-jre-headless \
+    && rm -rf /var/lib/apt/lists/*
+
+# -----------------------------
+# Trivy (vulnerability scanner)
+# -----------------------------
+RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+    | sh -s -- -b /usr/local/bin
+
+# -----------------------------
+# OWASP Dependency Check
+# -----------------------------
+ENV DC_VERSION=12.2.0
+
+RUN wget -q https://github.com/dependency-check/DependencyCheck/releases/download/v${DC_VERSION}/dependency-check-${DC_VERSION}-release.zip \
+    && unzip dependency-check-${DC_VERSION}-release.zip -d /opt/ \
+    && mv /opt/dependency-check /opt/owasp \
+    && ln -s /opt/owasp/bin/dependency-check.sh /usr/local/bin/dependency-check \
+    && rm dependency-check-${DC_VERSION}-release.zip
+
+# -----------------------------
+# SonarScanner CLI
+# -----------------------------
+ENV SONAR_VERSION=5.0.1.3006
+
+RUN wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_VERSION}-linux.zip \
+    && unzip sonar-scanner-cli-${SONAR_VERSION}-linux.zip \
+    && mv sonar-scanner-${SONAR_VERSION}-linux /opt/sonar-scanner \
+    && ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner \
+    && rm sonar-scanner-cli-${SONAR_VERSION}-linux.zip
+
+# -----------------------------
+# Safe CI temp dirs (Jenkins friendly)
+# -----------------------------
+ENV HOME=/tmp
+ENV TRIVY_CACHE_DIR=/tmp/trivy-cache
+ENV SONAR_USER_HOME=/tmp/.sonar
+
+RUN mkdir -p /tmp/trivy-cache /tmp/.sonar \
+    && chmod -R 777 /tmp
+
+# -----------------------------
+# Workdir for Jenkins
+# -----------------------------
+WORKDIR /app
+
+CMD ["bash"]
