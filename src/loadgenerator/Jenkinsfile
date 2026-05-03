@@ -1,116 +1,171 @@
-pipeline {
-    agent {
-        docker {
-            image 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image'
-            args '-u root'
-        }
-    }
+// pipeline {
+//     agent {
+//         docker {
+//             image 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image'
+//             args '-u root'
+//         }
+//     }
 
-    environment {
-        SONAR_HOST_URL = 'http://44.200.93.216:9000'
-        SONAR_TOKEN = credentials('sonarqube-token')
+//     environment {
+//         SONAR_HOST_URL = 'http://44.200.93.216:9000'
+//         SONAR_TOKEN = credentials('sonarqube-token')
 
-        HOME = "${WORKSPACE}"
-        TRIVY_CACHE_DIR = "${WORKSPACE}/.trivy-cache"
-        SONAR_USER_HOME = "${WORKSPACE}/.sonar"
-    }
+//         HOME = "${WORKSPACE}"
+//         TRIVY_CACHE_DIR = "${WORKSPACE}/.trivy-cache"
+//         SONAR_USER_HOME = "${WORKSPACE}/.sonar"
+//     }
 
-    stages {
+//     stages {
 
-        // -----------------------------
-        // Code Checkout
-        // -----------------------------
-        stage('Code Checkout') {
-            steps {
-                checkout scmGit(
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[
-                        credentialsId: 'git-credentials-id',
-                        url: 'https://github.com/nishantt3112/loadgenerator.git'
-                    ]]
-                )
-            }
-        }
+//         // -----------------------------
+//         // Code Checkout
+//         // -----------------------------
+//         stage('Code Checkout') {
+//             steps {
+//                 checkout scmGit(
+//                     branches: [[name: '*/main']],
+//                     userRemoteConfigs: [[
+//                         credentialsId: 'git-credentials-id',
+//                         url: 'https://github.com/nishantt3112/loadgenerator.git'
+//                     ]]
+//                 )
+//             }
+//         }
 
-        // -----------------------------
-        // LOADGENERATOR Service Build (DIFFERENT FROM NODE)
-        // -----------------------------
-        stage('Loadgenerator Service Build') {
-            steps {
-                sh '''
-                    echo "=== LOADGENERATOR SERVICE BUILD ==="
+//         // -----------------------------
+//         // LOADGENERATOR Service Build (DIFFERENT FROM NODE)
+//         // -----------------------------
+//         stage('Loadgenerator Service Build') {
+//             steps {
+//                 sh '''
+//                     echo "=== LOADGENERATOR SERVICE BUILD ==="
 
 
-                    # Python dependencies install
-                    python3 -m pip install --upgrade pip
-                    pip install -r requirements.txt
+//                     # Python dependencies install
+//                     python3 -m pip install --upgrade pip
+//                     pip install -r requirements.txt
 
-                    echo "Build step completed (no compilation needed for Python)"
-                '''
-            }
-        }
+//                     echo "Build step completed (no compilation needed for Python)"
+//                 '''
+//             }
+//         }
 
-        // -----------------------------
-        // SonarQube Analysis
-        // -----------------------------
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('sonarQubeServer') {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=loadgeneratorservice \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=$SONAR_HOST_URL \
-                          -Dsonar.login=$SONAR_TOKEN
-                    '''
-                }
-            }
-        }
+//         // -----------------------------
+//         // SonarQube Analysis
+//         // -----------------------------
+//         stage('SonarQube Analysis') {
+//             steps {
+//                 withSonarQubeEnv('sonarQubeServer') {
+//                     sh '''
+//                         sonar-scanner \
+//                           -Dsonar.projectKey=loadgeneratorservice \
+//                           -Dsonar.sources=. \
+//                           -Dsonar.host.url=$SONAR_HOST_URL \
+//                           -Dsonar.login=$SONAR_TOKEN
+//                     '''
+//                 }
+//             }
+//         }
 
-        // -----------------------------
-        // Quality Gate
-        // -----------------------------
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 90, unit: 'SECONDS') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+//         // -----------------------------
+//         // Quality Gate
+//         // -----------------------------
+//         stage('Quality Gate') {
+//             steps {
+//                 timeout(time: 90, unit: 'SECONDS') {
+//                     waitForQualityGate abortPipeline: true
+//                 }
+//             }
+//         }
 
-        // -----------------------------
-        // Trivy FS Scan
-        // -----------------------------
-        stage('Trivy FS Scan') {
-            steps {
-                sh '''
-                    echo "=== TRIVY SCAN (EMAIL SERVICE) ==="
+//         // -----------------------------
+//         // Trivy FS Scan
+//         // -----------------------------
+//         stage('Trivy FS Scan') {
+//             steps {
+//                 sh '''
+//                     echo "=== TRIVY SCAN (EMAIL SERVICE) ==="
 
-                    trivy fs . \
-                      --severity MEDIUM,LOW \
-                      --format table \
-                      --exit-code 0 \
-                      --no-progress \
-                      --cache-dir $TRIVY_CACHE_DIR \
-                      --output trivy-email-report.txt
-                '''
-            }
-        }
+//                     trivy fs . \
+//                       --severity MEDIUM,LOW \
+//                       --format table \
+//                       --exit-code 0 \
+//                       --no-progress \
+//                       --cache-dir $TRIVY_CACHE_DIR \
+//                       --output trivy-email-report.txt
+//                 '''
+//             }
+//         }
 
-        // -----------------------------
-        // Archive Reports
-        // -----------------------------
-        stage('Archive Reports') {
-            steps {
-                archiveArtifacts artifacts: 'trivy-email-report.txt', allowEmptyArchive: true
-            }
-        }
-    }
+//         // -----------------------------
+//         // Archive Reports
+//         // -----------------------------
+//         stage('Archive Reports') {
+//             steps {
+//                 archiveArtifacts artifacts: 'trivy-email-report.txt', allowEmptyArchive: true
+//             }
+//         }
+//     }
 
-    post {
-        always {
-            echo "=== CLEANING WORKSPACE ==="
-            cleanWs()
-        }
-    }
-}
+//     post {
+//         always {
+//             echo "=== CLEANING WORKSPACE ==="
+//             cleanWs()
+//         }
+//     }
+// }
+
+@Library('shared_library_prod') _
+
+def svc = 'loadgeneratorservice'
+
+ciPipeline(
+
+    serviceName: svc,
+
+    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/loadgeneratorservice',
+
+    dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
+
+    dockerCIPrebakedImageArgs: '-u root',
+
+    programmingLanguage: 'python',
+
+    servicePath: '.',
+
+    buildAndTestCmd: """
+        echo "=== LOADGENERATOR SERVICE BUILD ==="
+
+        python3 -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+        echo "Build step completed (no compilation needed for Python)"
+    """,
+
+    sonarCmd: """
+        sonar-scanner \\
+          -Dsonar.projectKey=loadgeneratorservice \\
+          -Dsonar.sources=. \\
+          -Dsonar.host.url=\$SONAR_HOST_URL \\
+          -Dsonar.login=\$SONAR_AUTH_TOKEN
+    """,
+
+    trivyScanCmd: """
+        echo "=== TRIVY SCAN (RECOMMENDATION SERVICE) ==="
+
+        trivy fs . \\
+          --severity MEDIUM,LOW \\
+          --format table \\
+          --exit-code 0 \\
+          --no-progress \\
+          --cache-dir \$WORKSPACE/.trivy-cache \\
+          --output trivy-rec-report.txt
+    """,
+
+    jUnitReportPath: '',
+
+    archiveReports: """
+        trivy-rec-report.txt
+    """
+
+)
