@@ -15,10 +15,9 @@ pipeline {
         stage('Checkout (Lightweight for Diff)') {
             steps {
                 script {
+                    deleteDir()
                     sh '''
                         set -e
-
-                        rm -rf .git *
                         git init
                         git remote add origin ${GIT_URL} 
 
