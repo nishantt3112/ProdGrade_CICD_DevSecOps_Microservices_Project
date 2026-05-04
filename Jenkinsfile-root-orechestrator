@@ -1,137 +1,253 @@
+// pipeline {
+//     agent any
+
+//     options {
+//         disableConcurrentBuilds()
+//     }
+
+//     environment {
+//         FETCH_DEPTH = "20"
+//         BASE_BRANCH = "main"
+//     }
+
+//     stages {
+
+//         stage('Checkout (Lightweight for Diff)') {
+//             steps {
+//                 script {
+//                     deleteDir()
+//                     sh '''
+//                         set -e
+//                         git init
+//                         git remote add origin ${GIT_URL} 
+
+//                         echo "=== FETCH CURRENT BRANCH ==="
+//                         git fetch origin ${BRANCH_NAME} --depth=${FETCH_DEPTH}
+//                         git checkout FETCH_HEAD
+
+//                         echo "=== FETCH BASE BRANCH ==="
+//                         git fetch origin ${BASE_BRANCH} --depth=${FETCH_DEPTH}
+//                     '''
+//                 }
+//             }
+//         }
+
+//         stage('Detect Changed Services') {
+//             steps {
+//                 script {
+//                     def changedFiles = sh(
+//                         script: "git diff origin/${BASE_BRANCH}...HEAD --name-only",
+//                         returnStdout: true
+//                     ).trim()
+
+//                     if (!changedFiles) {
+//                         echo "No changes detected"
+//                         return
+//                     }
+
+//                     def services = [] as Set
+
+//                     changedFiles.split("\\n").each { file ->
+//                         if (file.startsWith("src/")) {
+//                             def parts = file.split("/")
+//                             if (parts.size() > 1) {
+//                                 services.add(parts[1])
+//                             }
+//                         }
+//                     }
+
+//                     if (services.isEmpty()) {
+//                         echo "No service-level changes"
+//                         return
+//                     }
+
+//                     env.CHANGED_SERVICES = services.join(",")
+//                     echo "Changed services: ${env.CHANGED_SERVICES}"
+//                 }
+//             }
+//         }
+
+//         stage('Run Services (Isolated Parallel)') {
+//             when {
+//                 expression { return env.CHANGED_SERVICES }
+//             }
+
+//             steps {
+//                 script {
+
+//                     def services = env.CHANGED_SERVICES.split(",")
+
+//                     def parallelJobs = services.collectEntries { svc ->
+
+//                         ["${svc}": {
+
+//                             echo "=== Running ${svc} in isolated workspace ==="
+
+//                             ws("${env.WORKSPACE}@${svc}") {
+
+//                                 // clean only this service workspace
+//                                 deleteDir()
+
+//                                 // clone fresh for service
+//                                 withCredentials([usernamePassword(
+//                                     credentialsId: 'git-credentials-id',
+//                                     usernameVariable: 'GIT_USER',
+//                                     passwordVariable: 'GIT_PASS'
+//                                 )]) {
+
+//                                     sh """
+//                                         git init
+//                                         git remote add origin https://${GIT_USER}:${GIT_PASS}@${env.GIT_URL.replace('https://', '')}
+
+//                                         git fetch origin ${env.BRANCH_NAME} --depth=1
+
+//                                         git sparse-checkout init --cone
+//                                         git sparse-checkout set src/${svc}
+
+//                                         git checkout FETCH_HEAD
+//                                     """
+//                                 }
+
+//                                 dir("src/${svc}") {
+//                                     load "Jenkinsfile"
+//                                 }
+//                             }
+//                         }]
+//                     }
+
+//                     parallel parallelJobs
+//                 }
+//             }
+//         }
+//     }
+
+//     post {
+//         always {
+//             echo "=== FINAL CLEANUP ==="
+//             cleanWs()
+//         }
+//     }
+// }
+
+
+// ////
+// pipeline {
+//     agent any
+
+//     options {
+//         disableConcurrentBuilds()
+//         skipDefaultCheckout(true)
+//     }
+
+//     stages {
+
+//         stage('Checkout') {
+//             steps {
+//                 checkout scm
+//             }
+//         }
+
+//         stage('Detect Changes') {
+//             steps {
+//                 script {
+
+//                     def changedFiles = sh(
+//                         script: '''
+//                             git diff HEAD~1 HEAD --name-only
+//                         ''',
+//                         returnStdout: true
+//                     ).trim()
+
+//                     if (!changedFiles) {
+//                         echo "NO CHANGES"
+//                         return
+//                     }
+
+//                     def services = [] as Set
+
+//                     changedFiles.split("\\n").each { file ->
+
+//                         if (file.startsWith("src/")) {
+
+//                             def parts = file.split("/")
+
+//                             if (parts.size() > 1) {
+//                                   services.add(parts[1])
+//                             }
+//                         }
+//                     }
+
+//                     if (services.isEmpty()) {
+//                         echo "NO SERVICE CHANGES"
+//                         return
+//                     }
+
+//                     env.CHANGED_SERVICES =
+//                         services.join(",")
+
+//                     echo "CHANGED: ${env.CHANGED_SERVICES}"
+//                 }
+//             }
+//         }
+
+//         stage('Run Services') {
+
+//             when {
+//                 expression {
+//                     env.CHANGED_SERVICES
+//                 }
+//             }
+
+//             steps {
+//                 script {
+
+//                     def services =
+//                         env.CHANGED_SERVICES.split(",")
+
+//                     def jobs = services.collectEntries { svc ->
+
+//                         ["${svc}" : {
+
+//                             echo "RUNNING: ${svc}"
+
+//                             ws("${env.WORKSPACE}@${svc}") {
+
+//                                 deleteDir()
+
+//                                 checkout scm
+
+//                                 sh """
+//                                     git sparse-checkout init --cone
+//                                     git sparse-checkout set src/${svc}
+//                                 """
+
+//                                 dir("src/${svc}") {
+//                                     load "Jenkinsfile"
+//                                 }
+//                             }
+
+//                         }]
+//                     }
+
+//                     parallel jobs
+//                 }
+//             }
+//         }
+//     }
+
+//     post {
+//         always {
+//             cleanWs(
+//                 deleteDirs: true,
+//                 disableDeferredWipeout: true
+//             )
+//         }
+//     }
+// }
+
+
 pipeline {
-    agent any
 
-    options {
-        disableConcurrentBuilds()
-    }
-
-    environment {
-        FETCH_DEPTH = "20"
-        BASE_BRANCH = "main"
-    }
-
-    stages {
-
-        stage('Checkout (Lightweight for Diff)') {
-            steps {
-                script {
-                    deleteDir()
-                    sh '''
-                        set -e
-                        git init
-                        git remote add origin ${GIT_URL} 
-
-                        echo "=== FETCH CURRENT BRANCH ==="
-                        git fetch origin ${BRANCH_NAME} --depth=${FETCH_DEPTH}
-                        git checkout FETCH_HEAD
-
-                        echo "=== FETCH BASE BRANCH ==="
-                        git fetch origin ${BASE_BRANCH} --depth=${FETCH_DEPTH}
-                    '''
-                }
-            }
-        }
-
-        stage('Detect Changed Services') {
-            steps {
-                script {
-                    def changedFiles = sh(
-                        script: "git diff origin/${BASE_BRANCH}...HEAD --name-only",
-                        returnStdout: true
-                    ).trim()
-
-                    if (!changedFiles) {
-                        echo "No changes detected"
-                        return
-                    }
-
-                    def services = [] as Set
-
-                    changedFiles.split("\\n").each { file ->
-                        if (file.startsWith("src/")) {
-                            def parts = file.split("/")
-                            if (parts.size() > 1) {
-                                services.add(parts[1])
-                            }
-                        }
-                    }
-
-                    if (services.isEmpty()) {
-                        echo "No service-level changes"
-                        return
-                    }
-
-                    env.CHANGED_SERVICES = services.join(",")
-                    echo "Changed services: ${env.CHANGED_SERVICES}"
-                }
-            }
-        }
-
-        stage('Run Services (Isolated Parallel)') {
-            when {
-                expression { return env.CHANGED_SERVICES }
-            }
-
-            steps {
-                script {
-
-                    def services = env.CHANGED_SERVICES.split(",")
-
-                    def parallelJobs = services.collectEntries { svc ->
-
-                        ["${svc}": {
-
-                            echo "=== Running ${svc} in isolated workspace ==="
-
-                            ws("${env.WORKSPACE}@${svc}") {
-
-                                // clean only this service workspace
-                                deleteDir()
-
-                                // clone fresh for service
-                                withCredentials([usernamePassword(
-                                    credentialsId: 'git-credentials-id',
-                                    usernameVariable: 'GIT_USER',
-                                    passwordVariable: 'GIT_PASS'
-                                )]) {
-
-                                    sh """
-                                        git init
-                                        git remote add origin https://${GIT_USER}:${GIT_PASS}@${env.GIT_URL.replace('https://', '')}
-
-                                        git fetch origin ${env.BRANCH_NAME} --depth=1
-
-                                        git sparse-checkout init --cone
-                                        git sparse-checkout set src/${svc}
-
-                                        git checkout FETCH_HEAD
-                                    """
-                                }
-
-                                dir("src/${svc}") {
-                                    load "Jenkinsfile"
-                                }
-                            }
-                        }]
-                    }
-
-                    parallel parallelJobs
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            echo "=== FINAL CLEANUP ==="
-            cleanWs()
-        }
-    }
-}
-
-
-////
-pipeline {
     agent any
 
     options {
@@ -148,7 +264,9 @@ pipeline {
         }
 
         stage('Detect Changes') {
+
             steps {
+
                 script {
 
                     def changedFiles = sh(
@@ -160,32 +278,46 @@ pipeline {
 
                     if (!changedFiles) {
                         echo "NO CHANGES"
+                        currentBuild.result = "SUCCESS"
                         return
                     }
 
                     def services = [] as Set
 
-                    changedFiles.split("\\n").each { file ->
+                    changedFiles
+                        .split("\\n")
+                        .each { file ->
 
-                        if (file.startsWith("src/")) {
+                            if (file.startsWith("src/")) {
 
-                            def parts = file.split("/")
+                                def parts =
+                                    file.split("/")
 
-                            if (parts.size() > 1) {
-                                  services.add(parts[1])
+                                if (parts.size() > 1) {
+                                    services.add(
+                                        parts[1]
+                                    )
+                                }
                             }
                         }
-                    }
 
                     if (services.isEmpty()) {
+
                         echo "NO SERVICE CHANGES"
+
+                        currentBuild.result =
+                            "SUCCESS"
+
                         return
                     }
 
                     env.CHANGED_SERVICES =
                         services.join(",")
 
-                    echo "CHANGED: ${env.CHANGED_SERVICES}"
+                    echo """
+                    CHANGED SERVICES:
+                    ${env.CHANGED_SERVICES}
+                    """
                 }
             }
         }
@@ -194,40 +326,55 @@ pipeline {
 
             when {
                 expression {
-                    env.CHANGED_SERVICES
+                    return env.CHANGED_SERVICES
                 }
             }
 
             steps {
+
                 script {
 
-                    def services =
-                        env.CHANGED_SERVICES.split(",")
+                    def jobs = [:]
 
-                    def jobs = services.collectEntries { svc ->
+                    env.CHANGED_SERVICES
+                        .split(",")
+                        .each { svc ->
 
-                        ["${svc}" : {
+                            jobs[svc] = {
 
-                            echo "RUNNING: ${svc}"
-
-                            ws("${env.WORKSPACE}@${svc}") {
-
-                                deleteDir()
-
-                                checkout scm
-
-                                sh """
-                                    git sparse-checkout init --cone
-                                    git sparse-checkout set src/${svc}
+                                echo """
+                                RUNNING:
+                                ${svc}
                                 """
 
-                                dir("src/${svc}") {
-                                    load "Jenkinsfile"
+                                ws(
+                                  "${env.WORKSPACE}@${svc}"
+                                ) {
+
+                                    deleteDir()
+
+                                    checkout scm
+
+                                    sh """
+                                        git sparse-checkout init --cone
+
+                                        git sparse-checkout set src/${svc}
+                                    """
+
+                                    script {
+
+                                        def childScript =
+                                            readFile(
+                                                "src/${svc}/Jenkinsfile"
+                                            )
+
+                                        evaluate(
+                                            childScript
+                                        )
+                                    }
                                 }
                             }
-
-                        }]
-                    }
+                        }
 
                     parallel jobs
                 }
@@ -236,7 +383,9 @@ pipeline {
     }
 
     post {
+
         always {
+
             cleanWs(
                 deleteDirs: true,
                 disableDeferredWipeout: true
