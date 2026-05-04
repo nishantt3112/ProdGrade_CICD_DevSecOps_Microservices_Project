@@ -9,7 +9,7 @@ ciPipeline(
     dockerCiPrebakedImage: 'nishant1994docker/adservice-prebaked:trivy_owasp',
     dockerCIPrebakedImageArgs: '-v $HOME/.gradle:/home/gradle/.gradle',
     programmingLanguage: 'java',
-    servicePath: '.',
+    servicePath: 'src/adservice',
 
     buildAndTestCmd: """
             chmod +x ./gradlew
