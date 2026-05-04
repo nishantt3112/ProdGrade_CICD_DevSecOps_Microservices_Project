@@ -24,8 +24,6 @@ tasks.withType(JavaCompile) {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-
-
 ext {
     speed = project.hasProperty('speed') ? project.getProperty('speed') : false
     offlineCompile = new File("$buildDir/output/lib")
