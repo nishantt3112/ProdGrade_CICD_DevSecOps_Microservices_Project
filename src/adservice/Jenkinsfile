@@ -6,7 +6,7 @@ ciPipeline(
 
     serviceName = svc,
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice',
-    dockerCiPrebakedImage: 'nishant1994docker/adservice-prebaked:trivy_owasp'
+    dockerCiPrebakedImage: 'nishant1994docker/adservice-prebaked:trivy_owasp',
     dockerCIPrebakedImageArgs: '-v $HOME/.gradle:/home/gradle/.gradle',
     programmingLanguage: 'java',
     servicePath: '.',
