@@ -362,6 +362,13 @@ pipeline {
                                     """
 
                                     script {
+                                        env.PIPELINE_BRANCH =
+                                            sh(
+                                                script: "git rev-parse --abbrev-ref HEAD",
+                                                returnStdout: true
+                                            ).trim()
+
+                                        echo "PIPELINE_BRANCH=${env.PIPELINE_BRANCH}"
 
                                         def childScript =
                                             readFile(
