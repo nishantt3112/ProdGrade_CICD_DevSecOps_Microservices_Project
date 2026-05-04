@@ -1,12 +1,78 @@
-// @Library('shared_library_prod') _
+// // @Library('shared_library_prod') _
+// library 'shared_library_prod'
+
+// def svc = 'cartservice'
+
+// ciPipeline(
+//     gitUrl: scm.userRemoteConfigs[0].url,
+
+//     serviceName: svc,
+
+//     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/cartservice',
+
+//     dockerCiPrebakedImage: 'nishant1994docker/cartservice-prebaked-image:trivy-owasp',
+
+//     programmingLanguage: 'dotnet',
+
+//    servicePath: 'src/cartservice',
+
+//     buildAndTestCmd: """
+//         export HOME=\$WORKSPACE
+//         export DOTNET_CLI_HOME=\$WORKSPACE
+
+//         echo "=== Restore ==="
+//         dotnet restore
+
+//         echo "=== Build ==="
+//         dotnet build -c Release --no-restore
+//     """,
+
+//     sonarCmd: """
+//         export HOME=\$WORKSPACE
+//         export DOTNET_CLI_HOME=\$WORKSPACE
+
+//         dotnet sonarscanner begin \
+//             /k:"cartservice" \
+//             /d:sonar.host.url=\$SONAR_HOST_URL \
+//             /d:sonar.token=\$SONAR_AUTH_TOKEN
+
+//         dotnet build -c Release --no-restore
+
+//         dotnet sonarscanner end \
+//             /d:sonar.token=\$SONAR_AUTH_TOKEN
+//     """,
+
+//     trivyScanCmd: """
+//         echo "=== Trivy FS Scan ==="
+
+//         trivy fs . \
+//             --severity HIGH,CRITICAL \
+//             --format table \
+//             --exit-code 1 \
+//             --no-progress \
+//             --cache-dir .trivy-cache \
+//             --output trivy-report.txt
+//     """,
+
+//     jUnitReportPath: '',
+
+//     archiveReports: """
+//         trivy-report.txt
+//     """
+
+// )
+
 library 'shared_library_prod'
 
 def svc = 'cartservice'
 
 ciPipeline(
+
     gitUrl: scm.userRemoteConfigs[0].url,
 
     serviceName: svc,
+
+    servicePath: 'src/cartservice',
 
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/cartservice',
 
@@ -14,22 +80,19 @@ ciPipeline(
 
     programmingLanguage: 'dotnet',
 
-   servicePath: 'src/cartservice',
-
     buildAndTestCmd: """
-        export HOME=\$WORKSPACE
-        export DOTNET_CLI_HOME=\$WORKSPACE
+        set -e
+        echo "=== DOTNET BUILD START ==="
 
-        echo "=== Restore ==="
         dotnet restore
-
-        echo "=== Build ==="
         dotnet build -c Release --no-restore
+
+        echo "=== DOTNET BUILD END ==="
     """,
 
     sonarCmd: """
-        export HOME=\$WORKSPACE
-        export DOTNET_CLI_HOME=\$WORKSPACE
+        set -e
+        echo "=== SONAR START ==="
 
         dotnet sonarscanner begin \
             /k:"cartservice" \
@@ -40,24 +103,26 @@ ciPipeline(
 
         dotnet sonarscanner end \
             /d:sonar.token=\$SONAR_AUTH_TOKEN
+
+        echo "=== SONAR END ==="
     """,
 
     trivyScanCmd: """
-        echo "=== Trivy FS Scan ==="
+        set -e
+        echo "=== TRIVY SCAN START ==="
 
         trivy fs . \
             --severity HIGH,CRITICAL \
             --format table \
             --exit-code 1 \
             --no-progress \
-            --cache-dir .trivy-cache \
+            --cache-dir \$TRIVY_CACHE_DIR \
             --output trivy-report.txt
+
+        echo "=== TRIVY SCAN END ==="
     """,
 
     jUnitReportPath: '',
 
-    archiveReports: """
-        trivy-report.txt
-    """
-
+    archiveReports: 'trivy-report.txt'
 )
