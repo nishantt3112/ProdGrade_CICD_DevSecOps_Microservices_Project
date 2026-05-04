@@ -3,11 +3,28 @@ plugins {
     id 'com.github.sherter.google-java-format' version '0.9'
     id 'idea'
     id 'application'
+    id 'java'
+    id 'jacoco'
+    id 'org.sonarqube' version '7.2.3.7755'
 }
 
 repositories {
     mavenCentral()
     mavenLocal()
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }
 
 description = 'Ad Service'
@@ -52,6 +69,8 @@ dependencies {
                 "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}",
                 "io.netty:netty-tcnative-boringssl-static:2.0.75.Final"
     }
+       testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+
 }
 
 protobuf {
