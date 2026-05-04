@@ -31,13 +31,15 @@ ciPipeline(
                     -Dsonar.token=\$SONAR_AUTH_TOKEN
     """,
     trivyScanCmd: """
+            mkdir -p \$TRIVY_CACHE_DIR
+
             trivy fs . \
-                --db-repository public.ecr.aws/aquasecurity/trivy-db \
-                --cache-dir \$WORKSPACE/trivy-cache \
-                --format table \
-                --severity LOW,MEDIUM \
-                --exit-code 1 \
-                --output trivy-report.txt
+            --db-repository public.ecr.aws/aquasecurity/trivy-db \
+            --cache-dir \$TRIVY_CACHE_DIR \
+            --format table \
+            --severity LOW,MEDIUM \
+            --exit-code 1 \
+            --output trivy-report.txt
      """,
 
      archiveReports: """
