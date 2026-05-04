@@ -29,6 +29,7 @@ ext {
     offlineCompile = new File("$buildDir/output/lib")
 }
 
+
 dependencies {
     if (speed) {
         implementation fileTree(dir: offlineCompile, include: '*.jar')
