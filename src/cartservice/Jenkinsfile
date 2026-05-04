@@ -1,9 +1,11 @@
-@Library('shared_library_prod') _
+// @Library('shared_library_prod') _
+library 'shared_library_prod'
 
 def svc = 'cartservice'
 
 ciPipeline(
- 
+    gitUrl: scm.userRemoteConfigs[0].url,
+
     serviceName: svc,
 
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/cartservice',
@@ -12,7 +14,7 @@ ciPipeline(
 
     programmingLanguage: 'dotnet',
 
-    servicePath: '.',
+   servicePath: 'src/cartservice',
 
     buildAndTestCmd: """
         export HOME=\$WORKSPACE

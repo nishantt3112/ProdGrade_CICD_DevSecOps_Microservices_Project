@@ -1,5 +1,5 @@
-// @Library('shared_library_prod') _
-library 'shared_library_prod'
+@Library('shared_library_prod') _
+// library 'shared_library_prod'
 def svc = 'adservice'
 
 ciPipeline(
