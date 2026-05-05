@@ -53,10 +53,9 @@
 // )
 
 
-// @Library('shared_library_prod') _
 library 'shared_library_prod'
 
-def svc = 'emailservice'
+def svc = 'adservice'
 
 ciPipeline(
 
@@ -64,51 +63,68 @@ ciPipeline(
 
     serviceName: svc,
 
-    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/emailservice',
+    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice',
 
-    dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
+    dockerCiPrebakedImage: 'nishant1994docker/adservice-prebaked:trivy_owasp',
 
     dockerCIPrebakedImageArgs: '',
 
-    programmingLanguage: 'python',
+    programmingLanguage: 'java',
 
-    servicePath: 'src/emailservice',
+    servicePath: 'src/adservice',
 
     buildAndTestCmd: """
-            echo "=== EMAIL SERVICE BUILD ==="
+            echo "=== ADSERVICE BUILD ==="
 
-            python3 -m pip install --upgrade pip
-            pip install -r requirements.txt
+            chmod +x ./gradlew
 
-            echo "Build step completed (no compilation needed for Python)"
+            ./gradlew dependencies --no-daemon || true
+
+            ./gradlew clean build \\
+                -x verifyGoogleJavaFormat \\
+                -x distZip \\
+                -x distTar \\
+                --no-daemon
+
+            echo "=== ADSERVICE BUILD END ==="
     """,
 
-    jUnitReportPath: '',
+    jUnitReportPath: 'build/test-results/test/*.xml',
 
     sonarCmd: """
-            sonar-scanner \
-              -Dsonar.projectKey=emailservice \
-              -Dsonar.sources=. \
-              -Dsonar.host.url=\$SONAR_HOST_URL \
-              -Dsonar.token=\$SONAR_AUTH_TOKEN
+            echo "=== SONAR SCAN ==="
+
+            export SONAR_USER_HOME=/tmp/.sonar
+
+            ./gradlew sonar \\
+                -Dsonar.projectKey=adservice \\
+                -Dsonar.host.url=\$SONAR_HOST_URL \\
+                -Dsonar.token=\$SONAR_AUTH_TOKEN
+
+            echo "=== SONAR SCAN END ==="
     """,
 
     trivyScanCmd: """
-            echo "=== TRIVY SCAN (EMAIL SERVICE) ==="
+            echo "=== TRIVY SCAN (ADSERVICE) ==="
 
             mkdir -p \$TRIVY_CACHE_DIR
 
-            trivy fs . \
-              --db-repository public.ecr.aws/aquasecurity/trivy-db \
-              --cache-dir \$TRIVY_CACHE_DIR \
-              --severity LOW,MEDIUM \
-              --format table \
-              --exit-code 0 \
-              --output trivy-email-report.txt
+            trivy fs . \\
+              --db-repository public.ecr.aws/aquasecurity/trivy-db \\
+              --cache-dir \$TRIVY_CACHE_DIR \\
+              --severity LOW,MEDIUM \\
+              --format table \\
+              --exit-code 0 \\
+              --output trivy-adservice-report.txt
+
+            echo "=== TRIVY SCAN END ==="
     """,
 
     archiveReports: """
-            trivy-email-report.txt
+            trivy-adservice-report.txt,
+            dependency-check-report.xml,
+            build/reports/**,
+            build/test-results/**,
+            build/jacoco/**
     """
-
 )
