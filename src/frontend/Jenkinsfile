@@ -1,6 +1,6 @@
 library 'shared_library_prod'
 
-def svc = 'checkoutservice'
+def svc = 'frontendservice'
 
 ciPipeline(
 
@@ -8,7 +8,7 @@ ciPipeline(
 
     serviceName: svc,
 
-    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/checkoutservice',
+    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/frontendservice',
 
     dockerCiPrebakedImage: 'nishant1994docker/checkoutservice-prebaked:owasp-trivy-sonar-1',
 
@@ -16,7 +16,7 @@ ciPipeline(
 
     programmingLanguage: 'go',
 
-    servicePath: 'src/checkoutservice',
+    servicePath: 'src/frontendservice',
 
     buildAndTestCmd: """
         echo "=== GO BUILD ==="
