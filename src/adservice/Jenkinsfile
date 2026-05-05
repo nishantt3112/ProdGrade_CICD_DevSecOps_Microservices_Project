@@ -66,8 +66,7 @@ ciPipeline(
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice',
 
     dockerCiPrebakedImage: 'nishant1994docker/adservice-prebaked:trivy_owasp',
-
-    dockerCIPrebakedImageArgs: '',
+    dockerCIPrebakedImageArgs: '-v /var/run/docker.sock:/var/run/docker.sock',
 
     programmingLanguage: 'java',
 
