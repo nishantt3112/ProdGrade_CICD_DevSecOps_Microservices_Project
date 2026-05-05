@@ -1,54 +1,122 @@
-@Library('shared_library_prod') _
+// @Library('shared_library_prod') _
+
+// def svc = 'shoppingassistantservice'
+
+// ciPipeline(
+
+//     serviceName: svc,
+
+//     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/shoppingassistantservice',
+
+//     dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
+
+//     dockerCIPrebakedImageArgs: '-u root',
+
+//     programmingLanguage: 'python',
+
+//     servicePath: '.',
+
+//     buildAndTestCmd: """
+//         echo "=== SHOPPING ASSISTANT SERVICE BUILD ==="
+
+//         python3 -m pip install --upgrade pip
+//         pip install -r requirements.txt
+
+//         echo "Build step completed (no compilation needed for Python)"
+//     """,
+
+//     sonarCmd: """
+//         sonar-scanner \\
+//           -Dsonar.projectKey=shoppingassistantservice \\
+//           -Dsonar.sources=. \\
+//           -Dsonar.host.url=\$SONAR_HOST_URL \\
+//           -Dsonar.login=\$SONAR_AUTH_TOKEN
+//     """,
+
+//     trivyScanCmd: """
+//         echo "=== TRIVY SCAN (SHOPPING ASSISTANT SERVICE) ==="
+
+//         trivy fs . \\
+//           --severity MEDIUM,LOW \\
+//           --format table \\
+//           --exit-code 0 \\
+//           --no-progress \\
+//           --cache-dir \$WORKSPACE/.trivy-cache \\
+//           --output trivy-shoppingassistant-report.txt
+//     """,
+
+//     jUnitReportPath: '',
+
+//     archiveReports: """
+//         trivy-shoppingassistant-report.txt
+//     """
+
+// ) 
+
+library 'shared_library_prod'
 
 def svc = 'shoppingassistantservice'
 
 ciPipeline(
 
+    gitUrl: scm.userRemoteConfigs[0].url,
+
     serviceName: svc,
+
+    servicePath: 'src/shoppingassistantservice',
 
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/shoppingassistantservice',
 
     dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
 
-    dockerCIPrebakedImageArgs: '-u root',
+    dockerCIPrebakedImageArgs: '',
 
     programmingLanguage: 'python',
 
-    servicePath: '.',
-
     buildAndTestCmd: """
-        echo "=== SHOPPING ASSISTANT SERVICE BUILD ==="
+        set -e
+
+        echo "=== PYTHON BUILD START ==="
 
         python3 -m pip install --upgrade pip
         pip install -r requirements.txt
 
         echo "Build step completed (no compilation needed for Python)"
+
+        echo "=== PYTHON BUILD END ==="
     """,
 
     sonarCmd: """
+        set -e
+
+        echo "=== SONAR START ==="
+
         sonar-scanner \\
           -Dsonar.projectKey=shoppingassistantservice \\
           -Dsonar.sources=. \\
           -Dsonar.host.url=\$SONAR_HOST_URL \\
           -Dsonar.login=\$SONAR_AUTH_TOKEN
+
+        echo "=== SONAR END ==="
     """,
 
     trivyScanCmd: """
-        echo "=== TRIVY SCAN (SHOPPING ASSISTANT SERVICE) ==="
+        set -e
+
+        echo "=== TRIVY SCAN START ==="
 
         trivy fs . \\
           --severity MEDIUM,LOW \\
           --format table \\
           --exit-code 0 \\
           --no-progress \\
-          --cache-dir \$WORKSPACE/.trivy-cache \\
-          --output trivy-shoppingassistant-report.txt
+          --cache-dir \$TRIVY_CACHE_DIR \\
+          --output trivy-report.txt
+
+        echo "=== TRIVY SCAN END ==="
     """,
 
     jUnitReportPath: '',
 
-    archiveReports: """
-        trivy-shoppingassistant-report.txt
-    """
-
+    archiveReports: 'trivy-report.txt'
 )
