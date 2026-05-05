@@ -1,53 +1,120 @@
-@Library('shared_library_prod') _
+// @Library('shared_library_prod') _
+
+// def svc = 'paymentservice'
+
+// ciPipeline(
+
+//     serviceName: svc,
+
+//     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/paymentservice',
+
+//     dockerCiPrebakedImage: 'nishant1994docker/currency-service-prebaked:trivy-owasp-sonar-ci-image',
+
+//     dockerCIPrebakedImageArgs: '-u root',
+
+//     programmingLanguage: 'node',
+
+//     servicePath: '.',
+
+//     buildAndTestCmd: """
+//         echo "=== NODE INSTALL ==="
+//         npm install
+
+//         echo "=== NODE BUILD ==="
+//         npm run build || echo "No build script found, skipping"
+//     """,
+
+//     sonarCmd: """
+//         sonar-scanner \\
+//           -Dsonar.projectKey=paymentservice \\
+//           -Dsonar.sources=. \\
+//           -Dsonar.host.url=\$SONAR_HOST_URL \\
+//           -Dsonar.login=\$SONAR_AUTH_TOKEN
+//     """,
+
+//     trivyScanCmd: """
+//         echo "=== TRIVY SCAN ==="
+
+//         trivy fs . \\
+//           --severity MEDIUM,LOW \\
+//           --format table \\
+//           --exit-code 0 \\
+//           --no-progress \\
+//           --cache-dir \$WORKSPACE/.trivy-cache \\
+//           --output trivy-report.txt
+//     """,
+
+//     jUnitReportPath: '',
+
+//     archiveReports: """
+//         trivy-report.txt
+//     """
+
+// )
+
+library 'shared_library_prod'
 
 def svc = 'paymentservice'
 
 ciPipeline(
 
+    gitUrl: scm.userRemoteConfigs[0].url,
+
     serviceName: svc,
+
+    servicePath: 'src/paymentservice',
 
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/paymentservice',
 
     dockerCiPrebakedImage: 'nishant1994docker/currency-service-prebaked:trivy-owasp-sonar-ci-image',
 
-    dockerCIPrebakedImageArgs: '-u root',
+    dockerCIPrebakedImageArgs: '',
 
     programmingLanguage: 'node',
 
-    servicePath: '.',
-
     buildAndTestCmd: """
-        echo "=== NODE INSTALL ==="
+        set -e
+
+        echo "=== NODE BUILD START ==="
+
         npm install
 
-        echo "=== NODE BUILD ==="
         npm run build || echo "No build script found, skipping"
+
+        echo "=== NODE BUILD END ==="
     """,
 
     sonarCmd: """
+        set -e
+
+        echo "=== SONAR START ==="
+
         sonar-scanner \\
           -Dsonar.projectKey=paymentservice \\
           -Dsonar.sources=. \\
           -Dsonar.host.url=\$SONAR_HOST_URL \\
           -Dsonar.login=\$SONAR_AUTH_TOKEN
+
+        echo "=== SONAR END ==="
     """,
 
     trivyScanCmd: """
-        echo "=== TRIVY SCAN ==="
+        set -e
+
+        echo "=== TRIVY SCAN START ==="
 
         trivy fs . \\
           --severity MEDIUM,LOW \\
           --format table \\
           --exit-code 0 \\
           --no-progress \\
-          --cache-dir \$WORKSPACE/.trivy-cache \\
+          --cache-dir \$TRIVY_CACHE_DIR \\
           --output trivy-report.txt
+
+        echo "=== TRIVY SCAN END ==="
     """,
 
     jUnitReportPath: '',
 
-    archiveReports: """
-        trivy-report.txt
-    """
-
+    archiveReports: 'trivy-report.txt'
 )
