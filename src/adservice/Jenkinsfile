@@ -1,53 +1,114 @@
+// // @Library('shared_library_prod') _
+// library 'shared_library_prod'
+// def svc = 'adservice'
+
+// ciPipeline(
+//     gitUrl: scm.userRemoteConfigs[0].url,
+//     serviceName: svc,
+//     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice',
+//     dockerCiPrebakedImage: 'nishant1994docker/adservice-prebaked:trivy_owasp',
+//     dockerCIPrebakedImageArgs: '-v $HOME/.gradle:/home/gradle/.gradle',
+//     programmingLanguage: 'java',
+//     servicePath: 'src/adservice',
+
+//     buildAndTestCmd: """
+//             chmod +x ./gradlew
+
+//                     ./gradlew dependencies --no-daemon || true
+
+//                     ./gradlew clean build \
+//                         -x verifyGoogleJavaFormat \
+//                         -x distZip \
+//                         -x distTar \
+//                         --no-daemon
+//              """,
+//     jUnitReportPath: 'build/test-results/test/*.xml',
+//     sonarCmd: """
+//         export SONAR_USER_HOME=/tmp/.sonar
+//                     ./gradlew sonar \
+//                     -Dsonar.projectKey=adservice \
+//                     -Dsonar.host.url=\$SONAR_HOST_URL \
+//                     -Dsonar.token=\$SONAR_AUTH_TOKEN
+//     """,
+//     trivyScanCmd: """
+//             mkdir -p \$TRIVY_CACHE_DIR
+
+//             trivy fs . \
+//             --db-repository public.ecr.aws/aquasecurity/trivy-db \
+//             --cache-dir \$TRIVY_CACHE_DIR \
+//             --format table \
+//             --severity LOW,MEDIUM \
+//             --exit-code 1 \
+//             --output trivy-report.txt
+//      """,
+
+//      archiveReports: """
+//                 dependency-check-report.xml,
+//                     trivy-report.txt,
+//                     build/reports/**,
+//                     build/test-results/**,
+//                     build/jacoco/**
+//                 """
+ 
+// )
+
+
 // @Library('shared_library_prod') _
 library 'shared_library_prod'
-def svc = 'adservice'
+
+def svc = 'emailservice'
 
 ciPipeline(
+
     gitUrl: scm.userRemoteConfigs[0].url,
+
     serviceName: svc,
-    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice',
-    dockerCiPrebakedImage: 'nishant1994docker/adservice-prebaked:trivy_owasp',
-    dockerCIPrebakedImageArgs: '-v $HOME/.gradle:/home/gradle/.gradle',
-    programmingLanguage: 'java',
-    servicePath: 'src/adservice',
+
+    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/emailservice',
+
+    dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
+
+    dockerCIPrebakedImageArgs: '',
+
+    programmingLanguage: 'python',
+
+    servicePath: '.',
 
     buildAndTestCmd: """
-            chmod +x ./gradlew
+            echo "=== EMAIL SERVICE BUILD ==="
 
-                    ./gradlew dependencies --no-daemon || true
+            python3 -m pip install --upgrade pip
+            pip install -r requirements.txt
 
-                    ./gradlew clean build \
-                        -x verifyGoogleJavaFormat \
-                        -x distZip \
-                        -x distTar \
-                        --no-daemon
-             """,
-    jUnitReportPath: 'build/test-results/test/*.xml',
-    sonarCmd: """
-        export SONAR_USER_HOME=/tmp/.sonar
-                    ./gradlew sonar \
-                    -Dsonar.projectKey=adservice \
-                    -Dsonar.host.url=\$SONAR_HOST_URL \
-                    -Dsonar.token=\$SONAR_AUTH_TOKEN
+            echo "Build step completed (no compilation needed for Python)"
     """,
+
+    jUnitReportPath: '',
+
+    sonarCmd: """
+            sonar-scanner \
+              -Dsonar.projectKey=emailservice \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=\$SONAR_HOST_URL \
+              -Dsonar.token=\$SONAR_AUTH_TOKEN
+    """,
+
     trivyScanCmd: """
+            echo "=== TRIVY SCAN (EMAIL SERVICE) ==="
+
             mkdir -p \$TRIVY_CACHE_DIR
 
             trivy fs . \
-            --db-repository public.ecr.aws/aquasecurity/trivy-db \
-            --cache-dir \$TRIVY_CACHE_DIR \
-            --format table \
-            --severity LOW,MEDIUM \
-            --exit-code 1 \
-            --output trivy-report.txt
-     """,
+              --db-repository public.ecr.aws/aquasecurity/trivy-db \
+              --cache-dir \$TRIVY_CACHE_DIR \
+              --severity LOW,MEDIUM \
+              --format table \
+              --exit-code 1 \
+              --output trivy-email-report.txt
+    """,
 
-     archiveReports: """
-                dependency-check-report.xml,
-                    trivy-report.txt,
-                    build/reports/**,
-                    build/test-results/**,
-                    build/jacoco/**
-                """
- 
+    archiveReports: """
+            trivy-email-report.txt
+    """
+
 )
