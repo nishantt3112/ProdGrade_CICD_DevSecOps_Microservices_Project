@@ -115,13 +115,72 @@
 //     }
 // }
 
-@Library('shared_library_prod') _
+// @Library('shared_library_prod') _
+
+// def svc = 'loadgeneratorservice'
+
+// ciPipeline(
+
+//     serviceName: svc,
+
+//     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/loadgeneratorservice',
+
+//     dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
+
+//     dockerCIPrebakedImageArgs: '-u root',
+
+//     programmingLanguage: 'python',
+
+//     servicePath: '.',
+
+//     buildAndTestCmd: """
+//         echo "=== LOADGENERATOR SERVICE BUILD ==="
+
+//         python3 -m pip install --upgrade pip
+//         pip install -r requirements.txt
+
+//         echo "Build step completed (no compilation needed for Python)"
+//     """,
+
+//     sonarCmd: """
+//         sonar-scanner \\
+//           -Dsonar.projectKey=loadgeneratorservice \\
+//           -Dsonar.sources=. \\
+//           -Dsonar.host.url=\$SONAR_HOST_URL \\
+//           -Dsonar.login=\$SONAR_AUTH_TOKEN
+//     """,
+
+//     trivyScanCmd: """
+//         echo "=== TRIVY SCAN (RECOMMENDATION SERVICE) ==="
+
+//         trivy fs . \\
+//           --severity MEDIUM,LOW \\
+//           --format table \\
+//           --exit-code 0 \\
+//           --no-progress \\
+//           --cache-dir \$WORKSPACE/.trivy-cache \\
+//           --output trivy-rec-report.txt
+//     """,
+
+//     jUnitReportPath: '',
+
+//     archiveReports: """
+//         trivy-rec-report.txt
+//     """
+
+// )
+
+library 'shared_library_prod'
 
 def svc = 'loadgeneratorservice'
 
 ciPipeline(
 
+    gitUrl: scm.userRemoteConfigs[0].url,
+
     serviceName: svc,
+
+    servicePath: 'src/loadgenerator',
 
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/loadgeneratorservice',
 
@@ -131,41 +190,50 @@ ciPipeline(
 
     programmingLanguage: 'python',
 
-    servicePath: '.',
-
     buildAndTestCmd: """
-        echo "=== LOADGENERATOR SERVICE BUILD ==="
+        set -e
+
+        echo "=== PYTHON BUILD START ==="
 
         python3 -m pip install --upgrade pip
         pip install -r requirements.txt
 
         echo "Build step completed (no compilation needed for Python)"
+
+        echo "=== PYTHON BUILD END ==="
     """,
 
     sonarCmd: """
+        set -e
+
+        echo "=== SONAR START ==="
+
         sonar-scanner \\
           -Dsonar.projectKey=loadgeneratorservice \\
           -Dsonar.sources=. \\
           -Dsonar.host.url=\$SONAR_HOST_URL \\
           -Dsonar.login=\$SONAR_AUTH_TOKEN
+
+        echo "=== SONAR END ==="
     """,
 
     trivyScanCmd: """
-        echo "=== TRIVY SCAN (RECOMMENDATION SERVICE) ==="
+        set -e
+
+        echo "=== TRIVY SCAN START ==="
 
         trivy fs . \\
           --severity MEDIUM,LOW \\
           --format table \\
-          --exit-code 0 \\
+          --exit-code 1 \\
           --no-progress \\
-          --cache-dir \$WORKSPACE/.trivy-cache \\
-          --output trivy-rec-report.txt
+          --cache-dir \$TRIVY_CACHE_DIR \\
+          --output trivy-report.txt
+
+        echo "=== TRIVY SCAN END ==="
     """,
 
     jUnitReportPath: '',
 
-    archiveReports: """
-        trivy-rec-report.txt
-    """
-
+    archiveReports: 'trivy-report.txt'
 )
