@@ -37,11 +37,11 @@ ciPipeline(
         echo "=== Trivy Scan ==="
 
         trivy fs . \\
-          --severity MEDIUM,LOW \\
-          --format table \\
-          --exit-code 0 \\
-          --no-progress \\
-          --cache-dir \$WORKSPACE/.trivy-cache \\
+          --severity MEDIUM,LOW \
+          --format table \
+          --exit-code 1 \
+          --no-progress \
+          --cache-dir \$TRIVY_CACHE_DIR \
           --output trivy-report.txt
     """,
 
