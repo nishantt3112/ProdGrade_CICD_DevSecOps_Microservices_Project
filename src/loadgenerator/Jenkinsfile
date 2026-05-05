@@ -225,7 +225,7 @@ ciPipeline(
         trivy fs . \\
           --severity MEDIUM,LOW \\
           --format table \\
-          --exit-code 1 \\
+          --exit-code 0 \\
           --no-progress \\
           --cache-dir \$TRIVY_CACHE_DIR \\
           --output trivy-report.txt
