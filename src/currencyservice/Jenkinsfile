@@ -1,8 +1,64 @@
-@Library('shared_library_prod') _
+// @Library('shared_library_prod') _
+
+// def svc = 'currencyservice'
+
+// ciPipeline(
+
+//     serviceName: svc,
+
+//     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/currencyservice',
+
+//     dockerCiPrebakedImage: 'nishant1994docker/currency-service-prebaked:trivy-owasp-sonar-ci-image',
+
+//     dockerCIPrebakedImageArgs: '-u root',
+
+//     programmingLanguage: 'node',
+
+//     servicePath: '.',
+
+//     buildAndTestCmd: """
+//         echo "=== NODE INSTALL ==="
+//         npm install
+
+//         echo "=== NODE BUILD ==="
+//         npm run build || echo "No build script found, skipping"
+//     """,
+
+//     sonarCmd: """
+//         sonar-scanner \\
+//           -Dsonar.projectKey=currencyservice \\
+//           -Dsonar.sources=. \\
+//           -Dsonar.host.url=\$SONAR_HOST_URL \\
+//           -Dsonar.login=\$SONAR_AUTH_TOKEN
+//     """,
+
+//     trivyScanCmd: """
+//         echo "=== TRIVY SCAN ==="
+
+//         trivy fs . \\
+//           --severity MEDIUM,LOW \\
+//           --format table \\
+//           --exit-code 0 \\
+//           --no-progress \\
+//           --cache-dir \$WORKSPACE/.trivy-cache \\
+//           --output trivy-report.txt
+//     """,
+
+//     jUnitReportPath: '',
+
+//     archiveReports: """
+//         trivy-report.txt
+//     """
+
+// )
+
+library 'shared_library_prod'
 
 def svc = 'currencyservice'
 
 ciPipeline(
+
+    gitUrl: scm.userRemoteConfigs[0].url,
 
     serviceName: svc,
 
@@ -14,17 +70,23 @@ ciPipeline(
 
     programmingLanguage: 'node',
 
-    servicePath: '.',
+    servicePath: 'src/currencyservice',
 
     buildAndTestCmd: """
         echo "=== NODE INSTALL ==="
+
         npm install
 
         echo "=== NODE BUILD ==="
+
         npm run build || echo "No build script found, skipping"
     """,
 
+    jUnitReportPath: '',
+
     sonarCmd: """
+        export SONAR_USER_HOME=/tmp/.sonar
+
         sonar-scanner \\
           -Dsonar.projectKey=currencyservice \\
           -Dsonar.sources=. \\
@@ -33,21 +95,18 @@ ciPipeline(
     """,
 
     trivyScanCmd: """
-        echo "=== TRIVY SCAN ==="
+        mkdir -p \$TRIVY_CACHE_DIR
 
         trivy fs . \\
-          --severity MEDIUM,LOW \\
+          --db-repository public.ecr.aws/aquasecurity/trivy-db \\
+          --cache-dir \$TRIVY_CACHE_DIR \\
           --format table \\
-          --exit-code 0 \\
-          --no-progress \\
-          --cache-dir \$WORKSPACE/.trivy-cache \\
+          --severity LOW,MEDIUM \\
+          --exit-code 1 \\
           --output trivy-report.txt
     """,
-
-    jUnitReportPath: '',
 
     archiveReports: """
         trivy-report.txt
     """
-
 )
