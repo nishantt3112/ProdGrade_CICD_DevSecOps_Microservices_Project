@@ -186,7 +186,7 @@ ciPipeline(
 
     dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
 
-    dockerCIPrebakedImageArgs: '-u root',
+    dockerCIPrebakedImageArgs: '',
 
     programmingLanguage: 'python',
 
