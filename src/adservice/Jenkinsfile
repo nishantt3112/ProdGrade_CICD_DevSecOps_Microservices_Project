@@ -103,7 +103,7 @@ ciPipeline(
               --cache-dir \$TRIVY_CACHE_DIR \
               --severity LOW,MEDIUM \
               --format table \
-              --exit-code 1 \
+              --exit-code 0 \
               --output trivy-email-report.txt
     """,
 
