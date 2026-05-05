@@ -72,7 +72,7 @@ ciPipeline(
 
     programmingLanguage: 'python',
 
-    servicePath: '.',
+    servicePath: 'src/emailservice',
 
     buildAndTestCmd: """
             echo "=== EMAIL SERVICE BUILD ==="
