@@ -1,1 +1,67 @@
-shared_library_prod
+library 'shared_library_prod'
+
+def svc = 'recommendationservice'
+
+ciPipeline(
+
+    gitUrl: scm.userRemoteConfigs[0].url,
+
+    serviceName: svc,
+
+    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/recommendationservice',
+
+    dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
+
+    dockerCIPrebakedImageArgs: '',
+
+    programmingLanguage: 'python',
+
+    servicePath: 'src/recommendationservice',
+
+    buildAndTestCmd: """
+        set -e
+
+        echo "=== RECOMMENDATION SERVICE BUILD START ==="
+
+        python3 -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+        echo "Build step completed (no compilation needed for Python)"
+
+        echo "=== RECOMMENDATION SERVICE BUILD END ==="
+    """,
+
+    sonarCmd: """
+        set -e
+
+        echo "=== SONAR START ==="
+
+        sonar-scanner \\
+          -Dsonar.projectKey=recommendationservice \\
+          -Dsonar.sources=. \\
+          -Dsonar.host.url=\$SONAR_HOST_URL \\
+          -Dsonar.login=\$SONAR_AUTH_TOKEN
+
+        echo "=== SONAR END ==="
+    """,
+
+    trivyScanCmd: """
+        set -e
+
+        echo "=== TRIVY SCAN (RECOMMENDATION SERVICE) START ==="
+
+        trivy fs . \\
+          --severity MEDIUM,LOW \\
+          --format table \\
+          --exit-code 0 \\
+          --no-progress \\
+          --cache-dir \$TRIVY_CACHE_DIR \\
+          --output trivy-report.txt
+
+        echo "=== TRIVY SCAN END ==="
+    """,
+
+    jUnitReportPath: '',
+
+    archiveReports: 'trivy-report.txt'
+)
