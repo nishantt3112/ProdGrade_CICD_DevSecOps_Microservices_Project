@@ -16,7 +16,7 @@ ciPipeline(
 
     programmingLanguage: 'go',
 
-    servicePath: 'src/frontendservice',
+    servicePath: 'src/frontend',
 
     buildAndTestCmd: """
         echo "=== GO BUILD ==="
