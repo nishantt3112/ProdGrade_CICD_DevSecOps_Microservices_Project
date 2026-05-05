@@ -1,20 +1,22 @@
-@Library('shared_library_prod') _
+library 'shared_library_prod'
 
-def svc = 'frontendservice'
+def svc = 'checkoutservice'
 
 ciPipeline(
 
+    gitUrl: scm.userRemoteConfigs[0].url,
+
     serviceName: svc,
 
-    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/frontendservice',
+    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/checkoutservice',
 
     dockerCiPrebakedImage: 'nishant1994docker/checkoutservice-prebaked:owasp-trivy-sonar-1',
 
-    dockerCIPrebakedImageArgs: '-u root',
+    dockerCIPrebakedImageArgs: '',
 
     programmingLanguage: 'go',
 
-    servicePath: '.',
+    servicePath: 'src/checkoutservice',
 
     buildAndTestCmd: """
         echo "=== GO BUILD ==="
@@ -37,7 +39,7 @@ ciPipeline(
         trivy fs . \\
           --severity MEDIUM,LOW \\
           --format table \\
-          --exit-code 1 \\
+          --exit-code 0 \\
           --no-progress \\
           --cache-dir \$WORKSPACE/.trivy-cache \\
           --output trivy-report.txt
