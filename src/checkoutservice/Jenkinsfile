@@ -67,6 +67,7 @@ ciPipeline(
     dockerCiPrebakedImage: 'nishant1994docker/checkoutservice-prebaked:owasp-trivy-sonar-1',
 
     dockerCIPrebakedImageArgs: '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --group-add 110',
+    
     programmingLanguage: 'go',
 
     buildAndTestCmd: """
