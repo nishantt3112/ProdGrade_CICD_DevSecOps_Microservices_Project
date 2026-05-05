@@ -1,8 +1,10 @@
-@Library('shared_library_prod') _
+library 'shared_library_prod'
 
 def svc = 'emailservice'
 
 ciPipeline(
+
+    gitUrl: scm.userRemoteConfigs[0].url,
 
     serviceName: svc,
 
@@ -10,11 +12,11 @@ ciPipeline(
 
     dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
 
-    dockerCIPrebakedImageArgs: '-u root',
+    dockerCIPrebakedImageArgs: '',
 
     programmingLanguage: 'python',
 
-    servicePath: '.',
+    servicePath: 'src/emailservice',
 
     buildAndTestCmd: """
         echo "=== EMAIL SERVICE BUILD ==="
@@ -36,13 +38,15 @@ ciPipeline(
     trivyScanCmd: """
         echo "=== TRIVY SCAN (EMAIL SERVICE) ==="
 
-        trivy fs . \\
+          trivy fs . \\
           --severity MEDIUM,LOW \\
           --format table \\
           --exit-code 0 \\
           --no-progress \\
-          --cache-dir \$WORKSPACE/.trivy-cache \\
-          --output trivy-email-report.txt
+          --cache-dir \$TRIVY_CACHE_DIR \\
+          --output trivy-report.txt
+
+        echo "=== TRIVY SCAN END ==="
     """,
 
     jUnitReportPath: '',
