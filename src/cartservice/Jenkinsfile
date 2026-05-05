@@ -76,8 +76,8 @@ ciPipeline(
 
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/cartservice',
 
-    dockerFilePath: 'src/Dockerfile',
-    buildContext: 'src/',   
+    dockerFilePath: 'src/cartservice/src/Dockerfile',
+    buildContext: 'src/cartservice/src/',   
 
     dockerCiPrebakedImage: 'nishant1994docker/cartservice-prebaked-image:trivy-owasp',
     dockerCIPrebakedImageArgs: '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --group-add 110',
