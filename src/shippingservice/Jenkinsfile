@@ -1,8 +1,63 @@
-@Library('shared_library_prod') _
+// @Library('shared_library_prod') _
+
+// def svc = 'shippingservice'
+
+// ciPipeline(
+
+//     serviceName: svc,
+
+//     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/shippingservice',
+
+//     dockerCiPrebakedImage: 'nishant1994docker/checkoutservice-prebaked:owasp-trivy-sonar-1',
+
+//     dockerCIPrebakedImageArgs: '-u root',
+
+//     programmingLanguage: 'go',
+
+//     servicePath: '.',
+
+//     buildAndTestCmd: """
+//         echo "=== GO BUILD ==="
+//         export GOTOOLCHAIN=auto
+//         go mod download
+//         go build -o shippingservice
+//     """,
+
+//     sonarCmd: """
+//         sonar-scanner \\
+//           -Dsonar.projectKey=shippingservice \\
+//           -Dsonar.sources=. \\
+//           -Dsonar.host.url=\$SONAR_HOST_URL \\
+//           -Dsonar.login=\$SONAR_AUTH_TOKEN
+//     """,
+
+//     trivyScanCmd: """
+//         echo "=== Trivy Scan ==="
+
+//         trivy fs . \\
+//           --severity MEDIUM,LOW \\
+//           --format table \\
+//           --exit-code 0 \\
+//           --no-progress \\
+//           --cache-dir \$WORKSPACE/.trivy-cache \\
+//           --output trivy-report.txt
+//     """,
+
+//     jUnitReportPath: '',
+
+//     archiveReports: """
+//         trivy-report.txt
+//     """
+
+// ) 
+
+library 'shared_library_prod'
 
 def svc = 'shippingservice'
 
 ciPipeline(
+
+    gitUrl: scm.userRemoteConfigs[0].url,
 
     serviceName: svc,
 
@@ -10,43 +65,55 @@ ciPipeline(
 
     dockerCiPrebakedImage: 'nishant1994docker/checkoutservice-prebaked:owasp-trivy-sonar-1',
 
-    dockerCIPrebakedImageArgs: '-u root',
+    dockerCIPrebakedImageArgs: '',
 
     programmingLanguage: 'go',
 
-    servicePath: '.',
+    servicePath: 'src/shippingservice',
 
     buildAndTestCmd: """
-        echo "=== GO BUILD ==="
+        set -e
+
+        echo "=== GO BUILD START ==="
+
         export GOTOOLCHAIN=auto
         go mod download
         go build -o shippingservice
+
+        echo "=== GO BUILD END ==="
     """,
 
     sonarCmd: """
+        set -e
+
+        echo "=== SONAR START ==="
+
         sonar-scanner \\
           -Dsonar.projectKey=shippingservice \\
           -Dsonar.sources=. \\
           -Dsonar.host.url=\$SONAR_HOST_URL \\
           -Dsonar.login=\$SONAR_AUTH_TOKEN
+
+        echo "=== SONAR END ==="
     """,
 
     trivyScanCmd: """
-        echo "=== Trivy Scan ==="
+        set -e
+
+        echo "=== TRIVY SCAN START ==="
 
         trivy fs . \\
           --severity MEDIUM,LOW \\
           --format table \\
-          --exit-code 0 \\
+          --exit-code 1 \\
           --no-progress \\
-          --cache-dir \$WORKSPACE/.trivy-cache \\
+          --cache-dir \$TRIVY_CACHE_DIR \\
           --output trivy-report.txt
+
+        echo "=== TRIVY SCAN END ==="
     """,
 
     jUnitReportPath: '',
 
-    archiveReports: """
-        trivy-report.txt
-    """
-
+    archiveReports: 'trivy-report.txt'
 )
