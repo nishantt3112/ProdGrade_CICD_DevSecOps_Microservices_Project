@@ -79,6 +79,7 @@ ciPipeline(
     dockerCiPrebakedImage: 'nishant1994docker/cartservice-prebaked-image:trivy-owasp',
     dockerCIPrebakedImageArgs: '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --group-add 110',
 
+
     programmingLanguage: 'dotnet',
 
     buildAndTestCmd: """
