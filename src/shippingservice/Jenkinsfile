@@ -86,6 +86,7 @@ ciPipeline(
     sonarCmd: """
         set -e
 
+
         echo "=== SONAR START ==="
 
         sonar-scanner \\
