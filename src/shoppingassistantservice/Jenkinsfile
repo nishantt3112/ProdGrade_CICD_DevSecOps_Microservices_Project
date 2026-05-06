@@ -65,6 +65,7 @@ ciPipeline(
 
     servicePath: 'src/shoppingassistantservice',
 
+
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/shoppingassistantservice',
 
     dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-awscli-docker-ci-image',
