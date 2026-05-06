@@ -10,9 +10,9 @@ ciPipeline(
 
     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/recommendationservice',
 
-    dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-ci-image',
+    dockerCiPrebakedImage: 'nishant1994docker/email-service-prebaked:trivy-owasp-sonar-awscli-docker-ci-image',
 
-    dockerCIPrebakedImageArgs: '',
+    dockerCIPrebakedImageArgs: '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --group-add 110',
 
     programmingLanguage: 'python',
 

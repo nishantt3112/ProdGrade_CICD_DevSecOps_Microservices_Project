@@ -79,7 +79,7 @@ ciPipeline(
     dockerFilePath: 'src/cartservice/src/Dockerfile',
     buildContext: 'src/cartservice/src/.',  
 
-    dockerCiPrebakedImage: 'nishant1994docker/cartservice-prebaked-image:trivy-owasp',
+    dockerCiPrebakedImage: 'nishant1994docker/cartservice-prebaked-image:trivy-owasp-dockercli-awscli-ci-image',
     dockerCIPrebakedImageArgs: '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --group-add 110',
 
 
