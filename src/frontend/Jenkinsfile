@@ -8,7 +8,7 @@ ciPipeline(
 
     serviceName: svc,
 
-    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/frontendservice',
+    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/frontend',
 
     dockerCiPrebakedImage: 'nishant1994docker/checkoutservice-prebaked:owasp-trivy-sonar-awscli-dockercli-ci-image',
 
