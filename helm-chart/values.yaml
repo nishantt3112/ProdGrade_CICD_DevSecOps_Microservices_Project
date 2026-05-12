@@ -17,9 +17,40 @@
 # Declare variables to be passed into your templates.
 
 images:
-  repository: us-central1-docker.pkg.dev/google-samples/microservices-demo
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  adservice:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: e9bb3b1-77
+  cartservice:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/cartservice
+    tag: 15e53bc-78
+  checkoutservice:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/checkoutservice
+    tag: 15e53bc-78
+  currencyservice:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/currencyservice
+    tag: 15e53bc-78
+  emailservice:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/emailservice
+    tag: 15e53bc-78
+  frontend:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/frontend
+    tag: 732cc0e-81
+  loadgenerator:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/loadgenerator
+    tag: b0e1f94-82
+  paymentservice:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/payment
+    tag: 6502441-85
+  productcatalogservice:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/productcatalogservice
+    tag: 7811c6c-87
+  recommendationservice:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/recommendationservice
+    tag: 6eb80da-88
+  shippingservice:
+    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/shippingservice
+    tag: 24ebccd-89
 
 serviceAccounts:
   # Specifies whether service accounts should be created.
@@ -117,10 +148,10 @@ emailService:
 frontend:
   create: true
   name: frontend
-  externalService: true
+  externalService: false
   cymbalBranding: false
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
-  platform: local
+  platform: aws
   singleSharedSession: false
   virtualService:
     create: false

@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - onlineboutiqueapp-infra-routing-kube-manifests/HTTProute.yaml
+  - onlineboutiqueapp-infra-routing-kube-manifests/target-grp.yaml
+
+helmCharts:
+  - name: onlineboutique
+    repo: oci://ghcr.io/nishantt3112
+    version: 0.10.5
+    releaseName: boutique-app
+    namespace: boutique-app
+    valuesFile: helm-chart/values.yaml
