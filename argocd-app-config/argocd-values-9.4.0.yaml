@@ -38,6 +38,7 @@ crds:
   # -- Additional labels to be added to all CRDs
   additionalLabels: {}
 
+
 ## Globally shared configuration
 global:
   # -- Default domain used by all components
@@ -2727,9 +2728,22 @@ server:
     create: false
 
 ## Repo Server
-repoServer:
+repoServer: 
   # -- Repo server name
   name: repo-server
+
+  env: 
+    - name: HELM_REGISTRY_CONFIG 
+      value: /helm-registry/config.json
+  
+  volumes: 
+    - name: helm-registry-config 
+      secret: 
+        secretName: helm-registry-config
+
+  volumeMounts: 
+    - name: helm-registry-config 
+      mountPath: /helm-registry
 
   # -- The number of repo server pods to run
   replicas: 1
@@ -2804,7 +2818,6 @@ repoServer:
   extraArgs: []
 
   # -- Environment variables to pass to repo server
-  env: []
 
   # -- envFrom to pass to repo server
   # @default -- `[]` (See [values.yaml])
@@ -2876,10 +2889,10 @@ repoServer:
     #    memory: 64Mi
 
   # -- Additional volumeMounts to the repo server main container
-  volumeMounts: []
+  #volumeMounts: []
 
   # -- Additional volumes to the repo server pod
-  volumes: []
+ 
   #  - name: argocd-cmp-cm
   #    configMap:
   #      name: argocd-cmp-cm

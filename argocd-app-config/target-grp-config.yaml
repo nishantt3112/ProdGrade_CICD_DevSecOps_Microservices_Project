@@ -5,6 +5,6 @@ metadata:
   namespace: argocd
 spec:
   targetReference:
-    name: argocd-server
+    name: argo-cd-argocd-server
   defaultConfiguration:
     targetType: ip

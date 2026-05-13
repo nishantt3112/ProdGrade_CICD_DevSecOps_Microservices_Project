@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: helm-registry-config
+  namespace: argocd
+type: Opaque
+stringData:
+  config.json: |
+    {
+      "auths": {
+        "ghcr.io": {
+          "auth": "bmlzaGFudHQzMTEyOmdocF8zUEpTU0N3NlRHTHNxZGY2WUU0bVJVVFdGV2k0RW4xY3g2SlQ="
+        }
+      }
+    }
