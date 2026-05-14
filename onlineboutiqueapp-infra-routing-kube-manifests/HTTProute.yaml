@@ -22,7 +22,7 @@ spec:
     - matches:  
       - path: 
           type: PathPrefix
-          values: /
+          value: /
       backendRefs:
         - name: frontend
           port: 80
