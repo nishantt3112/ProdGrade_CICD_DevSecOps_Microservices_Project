@@ -5,19 +5,24 @@ metadata:
   namespace: boutique-app
 spec:
   hostnames:
-    - "longhauler.shop" #"app.longhauler.shop"
+    - longhauler.shop #"app.longhauler.shop"
+    - app.longhauler.shop
   parentRefs:
-  - group: gateway.networking.k8s.io
-    namespace: default
-    kind: Gateway
-    name: app-alb-gateway
-    sectionName: http
+  # - group: gateway.networking.k8s.io
+  #   namespace: default
+  #   kind: Gateway
+  #   name: app-alb-gateway
+  #   sectionName: http
   - group: gateway.networking.k8s.io
     namespace: default
     kind: Gateway
     name: app-alb-gateway
     sectionName: https
   rules:
-  - backendRefs:
-    - name: frontend
-      port: 80
+    - matches:  
+      - path: 
+          type: PathPrefix
+          values: /
+      - backendRefs:
+        - name: frontend
+          port: 80
