@@ -2735,7 +2735,8 @@ repoServer:
   env: 
     - name: HELM_REGISTRY_CONFIG 
       value: /helm-registry/config.json
-  
+  ###
+  ##
   volumes: 
     - name: helm-registry-config 
       secret: 
