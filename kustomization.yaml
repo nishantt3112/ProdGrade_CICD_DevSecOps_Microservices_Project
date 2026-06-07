@@ -8,7 +8,180 @@ kind: Kustomization
 helmCharts:
   - name: onlineboutique
     repo: oci://ghcr.io/nishantt3112
-    version: 0.10.9
+    version: 0.10.11
     releaseName: boutique-app
     namespace: boutique-app
     valuesFile: helm-chart/values.yaml
+
+
+
+
+
+
+
+
+
+#########################
+the project i am working on is a microservices based ecom cloud native application so i want full automation in build
+and deployment of the app 
+so for that i have the source code of the application as it is an open source application created by the google
+and i picked up the code from there 
+so what are the tools and techonolgies used in this project are 
+  source code on github it is a monorepo microservices based ecom 
+  cloud native becasue it is deployed on aws cloud and all the cloud based services are used to to setup the application infra like scaling loadbalancing containerization and it is a microservice based app so that is why
+  now terraform is been used to provision the aws infrastructure 
+  infra consists of networking like vpc subnets nat gateways route tables internet gateways and 
+  then comes the compute so i used EKS the container orchestration platform and ec2 as the nodes on which containers would be running 
+  - then comes the volumes so i used EBS volumes which are already attached to the ec2 instances 
+  - then comes the storage part so we might be using s3 as the blocl storage 
+  - then comest the database part so this application doesnt required a heavy database at all because it is a dummy applicaiton which only required a redis cache as caching
+  - so using terraform we created networking iam containing the iam roles mainly for eks controlplane and workerplane and eks vpc secruity groups and that is all 
+  - we can creat other resources as well but these are the must resources 
+  - so we created modules for each of the resource 
+
+  now we created a github actions workflow as the CICD for infra deployment automation 
+  - like lets say a developer or a devops is working on a module and we are using trunk based branhing strategy
+  - now devops users locally are not able to run terraform apply command because only terraform as a programm or the CICD tools should be able to run terraform apply and destroy commands 
+  - so that no human has the direct access to create the infrastructure because mistakenly anyone could run terraform apply or delete and the infra could be deleted 
+  - so security can be implemented via i think two or three ways one is accidental infra creation and deletion
+    - one is restrict the devops or developers by allowing what to create and what not to create 
+    - so for this we need to create IAM role and IAM policies and permissions and attach these permissions with the roles so there are mainly three groups one is dev one is devops and one is admin so 
+    - so we had created aws SSO and created permissions set and application set so that lets say there are 3 accounts dev stage and prod env 
+    - and we added permissions like dev group does have readonly permissions and cant create the resources 
+    - and it depends that what permissions devops should get like creating the resource if yes the what resources he would be able to creat 
+    - and admin does have the full access 
+    - also the CI server where our pipeline would be running then the terraform would get the authenication and authorization permissions via the OIDC proidver so it would basically get temporary token from the aws and short lived 
+    - now there are 4 enitites basically who can run terraform commands like developer devops admin and the terraform inside the CICD tool 
+    
+  - so lets say dev run terraform init validate fmt plan 
+  - now how would you prevent a user to run terraform plan or apply accdentially on the prod 
+  - so we can prevent at several level 
+  - like on the github we can create branch protection rules like no one can directly push to main branch and there must be minimum two senior reviewers who would review and then merge the code and 
+  - now other level we should create iam groups and iam role and provide the minimum read only access to the devlopers or junior devops and in the policies under permission set we must define that deny action on these resource like create update delet
+  - and also only terraform user or the CICD tool or server is allowed to run terraform plan apply and delete the resoruce so that only source of truth would be github actions or the CICD would be 
+  - now we can do this by creating OIDC like in aws identity provide we create a trusted entity means this is the source and if any jwt token or request comes from this account or this source and githu is in our case so if any request comes from this account this branch then only allow them to access the aws 
+  - so lets say there is a PR now one has created a PR and now he wants to run the CICD so it is okay as only terraform plan would run we are allowing the terraform to apply infra when a request comes from PR 
+  - so dev pushes code to github and a CI pipeline would run which mainly perform terraform init fmt validate plan because we have pushed the code to the feature branch and now the dev would get a quick feedback and if plan would successful then 
+  - the dev would create a PR now again a pipeline would execute so now the Seniors will review the the plan if he would be okay then he merges the PR to the target branch 
+  - now there a opion comes like pull_request sync opened and reopend 
+   
+  - now as soon as the senior reviews and pushes the commit to the main branch then again a new pipeline on main would get triggered 
+  - so here one this is like how we mangage the infra provision on diff envs like dev stage or prod 
+  - so for this we create  folder structure like there two moudles like child modules and the root module 
+  - so root module is something like which is the main code and there is are some child modules 
+  - so there is a concept of modules which means ki we create some templates and these templates are considered as the code by the terraform and along the tempaltes we pass values.tf file so this values file contains the value in key value pair and are passed to the tempalte at the runtime
+  - now what happens is root modules is the what actually used while running terrafomr plan or apply 
+  - now in the root module we define the child moudles path and also pass the values.tf file 
+  - so now values are taken and feeded into the child modules and these child modules become dynamic 
+  - the commands which are execute according to the env are like 
+
+  terrafomr init --backend-provider=provider means what is the destination where the infra would be created 
+  so this is defined in the providers.tf like statefile location whether it is locally stored or on the remote 
+  - then the region where we want to create the resources 
+  - then comes the profile like terraform needs authentication to talk to aws api so for that it basically checks for the ~/.aws/config file and the profile name and if the profile is configured than it uses it credentials like in terms of token or secret key or acces keys 
+  - then the version of the provider we have to select 
+  - then the local version of the terraform must be aligned with the terraform providers version 
+  - now it is recommended to use terraform version in the provider's section to lock the terraform version so that in future if any other person works on the same than he can simple align the terraform version by installing the same mentioned version to avoid any version conflicts 
+  - now comes the path where we want the statefile to be stored on the remote like in s3 we can create multiple folders or paths like s3/dev s3/prod etc 
+  - now comes the alias section if we need to create the resource by the same terraform apply or in a single go then we can use alias 
+  - also we can use the profile name like who's creds would be used by the terraform to talk to aws api 
+
+  - now the terraform structure is 
+  - there major components one is 
+    - statefile 
+    - cli 
+    - provider 
+    - statefile is the most important part like terraform looks the desired state which is the terraform plan output 
+    - and it matches the ds with the current state which is statefile 
+    - if it finds and change in the current state which is the plan then it update the current state of the infra 
+    - so it keeps the ds with the cs in sync 
+    - now statefile can be kept on local but what if the system gets corrupt state is gone and now if we run terrafomr plan then it would not be able to find the statefile against which it matches the changes 
+    - so we can store this statefile in a secure location and higly available also we need versioning of the statefile so that we can rollbackt to the previous version in case we want to 
+    - also we need some kind of policy enforcement like who can access the statefile and who cant 
+    - so S3 is a perfect fit for this 
+      as it provides versioning it is highly available 
+      - we can perform cross region repication if we want 
+      - we can implement IAM policies for authorization 
+    - now there is a conecpt of statelocking in terraform 
+    - like when two persons or programs run terraform apply at the same time this creates a race condition and terraform can't differentiate which command need to be execcuted first 
+    - so the state gets locked and further no terraform apply commands could be run 
+    - so this is a race condition 
+    - so there comes a concept called statelocking 
+      means if one person or program runs terraform apply then terraform aquires a lock on that process of apply kind of time duration until the command exectues succesfully 
+      - so dynamodb table is a service in aws which is used to maintain the statelocks in its table 
+      - so it has the lock if there is an ongoing terraform apply or destroy 
+      - and when the command gets exectued the lock id disapprears 
+    - so we setup terraform by creating the s3 for storing the statefile and dynamodb as to store the lock id 
+    - terraform init 
+      this command basically setup the currentworking directory for terraform to work 
+      - it creates a .terraform file which has the info
+      - it downloads the modules 
+      - it configures the backend 
+      - it read the provider.tf file mainly 
+    - terraform validate 
+      - so this command checks for any syntax error if there
+    - terrafomr fmt 
+      - this make the code in proper format like indentations 
+    - terraform plan 
+      - this reads all the resoruces prepares a blueprint and outputs it so that one can see what resources would be added which resoruces would be delete and what would be replaced 
+      - this acutally does not apply the changes it only output the changes 
+    - terraform apply 
+      - this command is used to actually provision the infra after validating the terrafom plan 
+    - terraform -var-files if we want a specific value of a file to be pass at runtime 
+
+    
+    - now comes the questions like how to check the terraform drift 
+    - so lets say anyone on the cloud modifies a resoruce like ec2 from 1->2 and terraform has no idea or no information about this change in its statefile 
+    - so statefile --ec2-->1 
+    - aws cloud --   ec2-->2 
+
+    - now on terraform plan it would detect this change and matches with the statefile as currentstate which is on aws cloud is not equal to desired state that is in the tf files 
+    - so basically there are two current state which is ec2-->2 on aws cloud and ec2-->1 on statefile 
+    - but terraform is programmed to always consider statefile as the source of truth so it would reject the changes done on aws cloud and deelte the extra ec2 instance and make the current state to ec2-->1 
+    - now this was manual drift like terraform plan command se we can check the drift and 
+    - it was done intentionally 
+      then how to add that thing or resource 
+      - so every resoruce created on aws or on any cloud has a resoruce id attached with it 
+      - now fetch that ID and now we use import command so that terraform starts to track the resoruce 
+      - so fetching the ID only is sufficient 
+      - we need to create the source block and in that mention all the attributes required and then again run terraform plan so that terraform internally can import the reousrce 
+      - 
+
+
+      so now what are the commands which need to be executed during the pipeline 
+
+      so lets say there three env dev stage and prod 
+        - we have a single main branch which has the stable code 
+          - now we would create three pipelines for each env like 
+
+          - terraform init --backend-provider=file-name 
+          - terraform validate 
+          - terraform fmt
+          - terraform plan --var-file=dev.tfvars
+          - terraform apply --var-file=dev.tfvars 
+          so only varfile would be changed or passed sepcifically against each envv 
+
+          - now this is all automated via the CICD and using OIDC 
+          - so we would create three oidc if there are three branches and branchwise we would define the permissions in the role attached to the odic so that resources would be created in the desired aws account with controlled permissions 
+          - and the structure would be 
+            terraform-code/ 
+                - env/
+                  - dev/
+                       - main.tf 
+                       - providers.tf
+                       - vars.tf
+
+                - modules/
+                  - ec2/
+                      - main.tf
+                      - vars.tf
+                  - s3/
+                      - main.tf
+                      - vars.tf
+                  - vpc/
+                      - main.tf
+                      - vars.tf 
+                      - output.tf
+
+
+          so 
