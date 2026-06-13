@@ -63,7 +63,9 @@ ciPipeline(
 
     serviceName: svc,
 
-    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice',
+    ecrRepo: '389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/adservice',
+
+//     ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice',
 
     dockerCiPrebakedImage: 'nishant1994docker/adservice-prebaked:trivy-owasp-docker-aws-cli',
     dockerCIPrebakedImageArgs: '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --group-add 110',
@@ -71,6 +73,8 @@ ciPipeline(
     programmingLanguage: 'java',
 
     servicePath: 'src/adservice',
+
+
 
     buildAndTestCmd: """
             echo "=== ADSERVICE BUILD ==="

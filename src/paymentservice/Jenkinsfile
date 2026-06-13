@@ -64,9 +64,11 @@ ciPipeline(
 
     servicePath: 'src/paymentservice',
 
-    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/payment',
+    ecrRepo: '389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice',
 
-    dockerCiPrebakedImage: 'nishant1994docker/currency-service-prebaked:trivy-owasp-sonar-awscli-dockercli-ci-image',
+    // ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/payment',
+
+    dockerCiPrebakedImage: 'nishant1994docker/currency-service-prebaked:trivy-owasp-sonar-awscli-dockercli-ci-new-helm-image',
 
     dockerCIPrebakedImageArgs: '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --group-add 110',
 

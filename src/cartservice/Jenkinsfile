@@ -74,12 +74,14 @@ ciPipeline(
 
     servicePath: 'src/cartservice',
 
-    ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/cartservice',
+     ecrRepo: '389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice',
+
+    // ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/cartservice',
 
     dockerFilePath: 'src/cartservice/src/Dockerfile',
     buildContext: 'src/cartservice/src/.',  
 
-    dockerCiPrebakedImage: 'nishant1994docker/cartservice-prebaked-image:trivy-owasp-dockercli-awscli-ci-image',
+    dockerCiPrebakedImage: 'nishant1994docker/cartservice-prebaked-image:trivy-owasp-dockercli-awscli-ci-new-helm-image',
     dockerCIPrebakedImageArgs: '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --group-add 110',
 
 
