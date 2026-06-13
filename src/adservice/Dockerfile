@@ -24,6 +24,7 @@ COPY gradle gradle
 RUN chmod +x gradlew
 RUN ./gradlew downloadRepos
 
+
 COPY . .
 RUN chmod +x gradlew
 RUN ./gradlew installDist
