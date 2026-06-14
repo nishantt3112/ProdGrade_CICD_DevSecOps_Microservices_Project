@@ -63,7 +63,7 @@ ciPipeline(
 
     serviceName: svc,
     helmChartImageName: 'adservice',
-    runHelm: "true" ,
+    runHelm: true ,
     environment: 'dev',
 
     ecrRepo: '389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/adservice',
