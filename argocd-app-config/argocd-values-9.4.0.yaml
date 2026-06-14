@@ -2733,7 +2733,7 @@ repoServer:
   name: repo-server
 
   env: 
-    - name: HELM_REGISTRY_CONFIG 
+    - name: HELM_REGISTRY_CONFIG
       value: /helm-registry/config.json
   ###
   ##
@@ -2748,7 +2748,8 @@ repoServer:
 
   # -- The number of repo server pods to run
   replicas: 1
-
+  ##
+  #
   # -- Runtime class name for the repo server
   # @default -- `""` (defaults to global.runtimeClassName)
   runtimeClassName: ""

@@ -60,8 +60,9 @@ ciPipeline(
     gitUrl: scm.userRemoteConfigs[0].url,
 
     serviceName: svc,
+    environment: 'dev',
 
-        ecrRepo: '389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice',
+    ecrRepo: '389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice',
 
 
     // ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/productcatalogservice',

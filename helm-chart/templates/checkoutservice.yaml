@@ -24,8 +24,8 @@ metadata:
 ---
 {{- end }}
 
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ .Values.checkoutService.name }}
   namespace: {{ .Release.Namespace }}
@@ -33,10 +33,25 @@ metadata:
     app: {{ .Values.checkoutService.name }}
 
 spec:
+  
+  replicas: {{ .Values.adService.replicas }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: {{ .Values.checkoutService.name }}
 
+  strategy:
+    canary:
+      maxSurge: 1
+      maxUnavailable: 0
+    steps:
+      - setWeight: 20
+      - pause: 
+          duration: 60s
+      - setWeight: 50
+      - pause:
+          duration: 60s
+      - setWeight: 100
   template:
     metadata:
       labels:
@@ -60,7 +75,7 @@ spec:
 
       containers:
         - name: server
-          image: {{ .Values.images.checkoutservice.repository }}:{{ .Values.images.checkoutservice.tag | default .Chart.AppVersion }}
+          image: {{ .Values.images.checkoutservice.repository }}:{{ .Values.images.checkoutservice.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 5050

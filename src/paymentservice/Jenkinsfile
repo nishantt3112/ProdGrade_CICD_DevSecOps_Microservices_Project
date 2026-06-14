@@ -63,6 +63,7 @@ ciPipeline(
     serviceName: svc,
 
     servicePath: 'src/paymentservice',
+    environment: 'dev',
 
     ecrRepo: '389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice',
 

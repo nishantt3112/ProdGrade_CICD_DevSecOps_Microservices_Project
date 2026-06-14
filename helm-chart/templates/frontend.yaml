@@ -16,8 +16,8 @@ metadata:
 ---
 {{- end }}
 
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ .Values.frontend.name }}
   namespace: {{ .Release.Namespace }}
@@ -25,11 +25,32 @@ metadata:
     app: {{ .Values.frontend.name }}
 
 spec:
-  replicas: 1
+  replicas: {{ .Values.adService.replicas }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: {{ .Values.frontend.name }}
+  strategy:
+    canary:
+      stableService: {{ .Values.frontend.name }}-stable
+      canaryService: {{ .Values.frontend.name }}-canary
 
+      trafficRouting:
+        plugins:
+          argoproj-labs/gatewayAPI:
+            namespace: boutique-app
+            httpRoutes:
+              - name: http-app-route
+      maxSurge: 1
+      maxUnavailable: 0
+      steps:
+        - setWeight: 20
+        - pause: 
+            duration: 60s
+        - setWeight: 50
+        - pause:
+            duration: 60s
+        - setWeight: 100
   template:
     metadata:
       labels:
@@ -60,7 +81,7 @@ spec:
       containers:
         - name: server
 
-          image: {{ .Values.images.frontend.repository }}:{{ .Values.images.frontend.tag | default .Chart.AppVersion }}
+          image: {{ .Values.images.frontend.repository }}:{{ .Values.images.frontend.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 8080
@@ -148,7 +169,26 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.frontend.name }}
+  name: {{ .Values.frontend.name }}-stable
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.frontend.name }}
+
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.frontend.name }}
+
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.frontend.name }}-canary
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.frontend.name }}

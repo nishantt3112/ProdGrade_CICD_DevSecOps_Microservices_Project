@@ -25,7 +25,7 @@ metadata:
     app: {{ .Values.loadGenerator.name }}
 
 spec:
-  replicas: 1
+  replicas: {{ .Values.adService.replicas }}
   selector:
     matchLabels:
       app: {{ .Values.loadGenerator.name }}
@@ -104,7 +104,7 @@ spec:
 
       containers:
         - name: main
-          image: {{ .Values.images.loadgenerator.repository }}:{{ .Values.images.loadgenerator.tag | default .Chart.AppVersion }}
+          image: {{ .Values.images.loadgenerator.repository }}:{{ .Values.images.loadgenerator.digest | default .Chart.AppVersion }}
 
           securityContext:
             allowPrivilegeEscalation: false

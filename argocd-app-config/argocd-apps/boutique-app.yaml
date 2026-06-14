@@ -1,6 +1,6 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
-metadata:
+metadata: 
   name: boutique-app
   namespace: argocd
 spec:
@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/nishantt3112/ProdGrade_CICD_DevSecOps_Microservices_Project.git
     targetRevision: HEAD
-    path: .
+    path: kustom/base/kustomization.yaml
 
   destination:
     server: https://kubernetes.default.svc

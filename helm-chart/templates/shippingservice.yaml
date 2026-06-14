@@ -16,8 +16,8 @@ metadata:
 ---
 {{- end }}
 
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ .Values.shippingService.name }}
   namespace: {{ .Release.Namespace }}
@@ -25,11 +25,23 @@ metadata:
     app: {{ .Values.shippingService.name }}
 
 spec:
-  replicas: 1
+  replicas: {{ .Values.adService.replicas }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: {{ .Values.shippingService.name }}
-
+  strategy:
+    canary:
+      maxSurge: 1
+      maxUnavailable: 0
+    steps:
+      - setWeight: 20
+      - pause: 
+          duration: 60s
+      - setWeight: 50
+      - pause:
+          duration: 60s
+      - setWeight: 100
   template:
     metadata:
       labels:
@@ -59,7 +71,7 @@ spec:
 
       containers:
         - name: server
-          image: {{ .Values.images.shippingservice.repository }}:{{ .Values.images.shippingservice.tag | default .Chart.AppVersion }}
+          image: {{ .Values.images.shippingservice.repository }}:{{ .Values.images.shippingservice.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 50051

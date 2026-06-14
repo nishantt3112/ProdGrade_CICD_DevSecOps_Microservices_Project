@@ -64,6 +64,7 @@ ciPipeline(
     serviceName: svc,
 
     servicePath: 'src/shoppingassistantservice',
+    environment: 'dev',
 
     ecrRepo: '389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shoppingassistantservice',
     // ecrRepo: '071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/shoppingassistantservice',

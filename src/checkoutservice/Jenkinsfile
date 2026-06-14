@@ -59,6 +59,9 @@ ciPipeline(
     gitUrl: scm.userRemoteConfigs[0].url,
 
     serviceName: svc,
+    environment: 'dev',
+
+    helmChartImageName: 'checkoutservice'
 
     servicePath: 'src/checkoutservice',
 

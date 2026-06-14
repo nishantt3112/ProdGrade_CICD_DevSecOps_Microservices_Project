@@ -18,39 +18,61 @@
 
 images:
   adservice:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice
+    # repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice
     # Overrides the image tag whose default is the chart appVersion.
-    tag: e9bb3b1-77
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/adservice
+    tag: 74f92e3-15
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
   cartservice:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/cartservice
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice
     tag: 15e53bc-78
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+
   checkoutservice:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/checkoutservice
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice
     tag: 15e53bc-78
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+
   currencyservice:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/currencyservice
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice
     tag: 15e53bc-78
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+
   emailservice:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/emailservice
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice
     tag: 15e53bc-78
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+
   frontend:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/frontend
-    tag: 732cc0e-81
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend
+    tag: 96f1318-96
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+  
   loadgenerator:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/loadgenerator
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice
     tag: b0e1f94-82
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+
   paymentservice:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/payment
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice
     tag: 6502441-85
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+
   productcatalogservice:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/productcatalogservice
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice
     tag: 7811c6c-87
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+
   recommendationservice:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/recommendationservice
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/recommendationservice
     tag: 6eb80da-88
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+
   shippingservice:
-    repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/shippingservice
+    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice
     tag: 24ebccd-89
+    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+
 
 serviceAccounts:
   # Specifies whether service accounts should be created.

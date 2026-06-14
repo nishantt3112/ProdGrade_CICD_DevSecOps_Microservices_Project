@@ -29,8 +29,8 @@ metadata:
 ---
 {{- end }}
 
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ .Values.currencyService.name }}
   namespace: {{ .Release.Namespace }}
@@ -38,10 +38,24 @@ metadata:
     app: {{ .Values.currencyService.name }}
 
 spec:
+  replicas: {{ .Values.adService.replicas }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: {{ .Values.currencyService.name }}
 
+  strategy:
+    canary:
+      maxSurge: 1
+      maxUnavailable: 0
+    steps:
+      - setWeight: 20
+      - pause: 
+          duration: 60s
+      - setWeight: 50
+      - pause:
+          duration: 60s
+      - setWeight: 100
   template:
     metadata:
       labels:
@@ -78,7 +92,7 @@ spec:
               drop:
                 - ALL
 
-          image: {{ .Values.images.currencyservice.repository }}:{{ .Values.images.currencyservice.tag | default .Chart.AppVersion }}
+          image: {{ .Values.images.currencyservice.repository }}:{{ .Values.images.currencyservice.digest | default .Chart.AppVersion }}
 
           ports:
             - name: grpc

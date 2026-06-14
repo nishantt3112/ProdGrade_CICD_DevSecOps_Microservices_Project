@@ -21,17 +21,32 @@ metadata:
 ---
 {{- end }}
 
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ .Values.cartService.name }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.cartService.name }}
 spec:
+  replicas: {{ .Values.adService.replicas }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: {{ .Values.cartService.name }}
+  strategy:
+    canary:
+      maxSurge: 1
+      maxUnavailable: 0
+    steps:
+      - setWeight: 20
+      - pause: 
+          duration: 60s
+      - setWeight: 50
+      - pause:
+          duration: 60s
+      - setWeight: 100
+  
 
   template:
     metadata:
@@ -70,7 +85,7 @@ spec:
 
       containers:
         - name: server
-          image: {{ .Values.images.cartservice.repository }}:{{ .Values.images.cartservice.tag | default .Chart.AppVersion }}
+          image: {{ .Values.images.cartservice.repository }}:{{ .Values.images.cartservice.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 7070

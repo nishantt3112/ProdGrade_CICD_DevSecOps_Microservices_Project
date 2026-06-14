@@ -15,18 +15,32 @@ metadata:
 ---
 {{- end }}
 
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ .Values.adService.name }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.adService.name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.adService.replicas }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: {{ .Values.adService.name }}
+  strategy:
+    canary:
+      maxSurge: 1
+      maxUnavailable: 0
+    steps:
+      - setWeight: 20
+      - pause: 
+          duration: 60s
+      - setWeight: 50
+      - pause:
+          duration: 60s
+      - setWeight: 100
+
   template:
     metadata:
       labels:
@@ -50,7 +64,7 @@ spec:
 
       containers:
         - name: server
-          image: {{ .Values.images.adservice.repository }}:{{ .Values.images.adservice.tag | default .Chart.AppVersion }}
+          image: {{ .Values.images.adservice.repository }}:{{ .Values.images.adservice.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 9555
