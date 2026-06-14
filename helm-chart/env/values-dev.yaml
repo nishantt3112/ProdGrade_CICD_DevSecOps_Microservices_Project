@@ -1,0 +1,58 @@
+
+adService:
+  replicas: 5
+
+cartService:
+  replicas: 5
+
+checkoutService:
+  replicas: 5
+
+currencyService:
+  replicas: 5
+
+emailService:
+  replicas: 5
+
+frontend:
+  replicas: 5
+
+loadGenerator:
+  replicas: 5
+
+paymentService:
+  replicas: 5
+
+productCatalogService:
+  replicas: 5
+
+
+recommendationService:
+  replicas: 5
+
+
+shippingService:
+  replicas: 5
+
+
+cartDatabase:
+  # Specifies the type of the cartservice's database, could be either redis or spanner.
+  type: redis
+  connectionString: "redis-cart:6379"
+  inClusterRedis:
+    create: true
+    name: redis-cart
+    # Uses the public redis image from Docker Hub, otherwise will use the images.repository.
+    publicRepository: true
+  externalRedisTlsOrigination:
+    enable: false
+    name: exernal-redis-tls-origination
+    endpointAddress: ""
+    endpointPort: ""
+    certificate: ""
+
+# @TODO: This service is not currently available in Helm.
+# https://github.com/GoogleCloudPlatform/microservices-demo/tree/main/kustomize/components/shopping-assistant
+shoppingAssistantService:
+  create: false
+  name: shoppingassistantservice
