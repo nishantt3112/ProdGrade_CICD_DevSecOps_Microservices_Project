@@ -358,7 +358,8 @@ pipeline {
                                     sh """
                                         git sparse-checkout init --cone
 
-                                        git sparse-checkout set src/${svc}
+                                        git sparse-checkout set src/${svc} \
+                                        helm-chart
                                     """
 
                                     script {
