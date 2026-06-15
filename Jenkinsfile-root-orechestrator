@@ -245,6 +245,217 @@
 //     }
 // }
 
+// ###################################################################################################
+// pipeline {
+
+//     agent any
+
+//     options {
+//         disableConcurrentBuilds()
+//         skipDefaultCheckout(true)
+//     }
+
+//     stages {
+
+//         // stage('Checkout') {
+//         //     steps {
+//         //         checkout scm
+//         //     }
+//         // }
+//             stage('Checkout') {
+//                     steps {
+//                         script {
+
+//                             def branch =
+//                                 env.GIT_LOCAL_BRANCH ?:
+//                                 env.GIT_BRANCH?.replace("origin/", "") ?:
+//                                 "main"
+
+//                             def isDev = (branch == "dev")
+
+//                             checkout([
+//                                 $class: 'GitSCM',
+//                                 branches: [[name: "*/${branch}"]],
+//                                 userRemoteConfigs: [[
+//                                     url: scm.userRemoteConfigs[0].url,
+//                                     credentialsId: 'jenkins-github-creds'
+//                                 ]],
+//                                 extensions: isDev ? [[
+//                                     $class: 'CloneOption',
+//                                     shallow: true,
+//                                     depth: 1,
+//                                     noTags: false
+//                                 ]] : []
+//                             ])
+
+//                             echo "Checked out branch=${branch}"
+//                             echo "Mode=${isDev ? 'SHALLOW' : 'FULL'}"
+//                         }
+//                     }
+//                 }
+//         stage('Detect Changes') {
+
+//             steps {
+
+//                 script {
+
+//                     def changedFiles = sh(
+//                         script: '''
+//                             git diff HEAD~1 HEAD --name-only
+//                         ''',
+//                         returnStdout: true
+//                     ).trim()
+
+//                     if (!changedFiles) {
+//                         echo "NO CHANGES"
+//                         currentBuild.result = "SUCCESS"
+//                         return
+//                     }
+
+//                     def services = [] as Set
+
+//                     changedFiles
+//                         .split("\\n")
+//                         .each { file ->
+
+//                             if (file.startsWith("src/")) {
+
+//                                 def parts =
+//                                     file.split("/")
+
+//                                 if (parts.size() > 1) {
+//                                     services.add(
+//                                         parts[1]
+//                                     )
+//                                 }
+//                             }
+//                         }
+
+//                     if (services.isEmpty()) {
+
+//                         echo "NO SERVICE CHANGES"
+
+//                         currentBuild.result =
+//                             "SUCCESS"
+
+//                         return
+//                     }
+
+//                     env.CHANGED_SERVICES =
+//                         services.join(",")
+
+//                     echo """
+//                     CHANGED SERVICES:
+//                     ${env.CHANGED_SERVICES}
+//                     """
+//                 }
+//             }
+//         }
+
+//         stage('Run Services') {
+
+//             when {
+//                 expression {
+//                     return env.CHANGED_SERVICES
+//                 }
+//             }
+
+//             steps {
+
+//                 script {
+
+//                     def jobs = [:]
+
+//                     env.CHANGED_SERVICES
+//                         .split(",")
+//                         .each { svc ->
+
+//                             jobs[svc] = {
+
+//                                 echo """
+//                                 RUNNING:
+//                                 ${svc}
+//                                 """
+
+//                                 ws("${env.WORKSPACE}-${svc}") {
+
+//                                     deleteDir()
+                                
+//                                     // checkout scm
+
+//                                     // sh """
+//                                     //     git sparse-checkout init --cone
+
+//                                     //     git sparse-checkout set src/${svc} \
+//                                     //     helm-chart
+//                                     // """
+//                                         script {
+
+//                                             def branch =
+//                                                 env.GIT_LOCAL_BRANCH ?:
+//                                                 env.GIT_BRANCH?.replace("origin/", "") ?:
+//                                                 "main"
+
+//                                             def isDev = (branch == "dev")
+
+//                                         checkout([
+//                                             $class: 'GitSCM',
+//                                             branches: [[name: "*/${branch}"]],
+//                                             userRemoteConfigs: [[
+//                                                 url: scm.userRemoteConfigs[0].url,
+//                                                 credentialsId: 'jenkins-github-creds'
+//                                             ]],
+//                                             extensions: [
+//                                                 isDev ? [
+//                                                     $class: 'CloneOption',
+//                                                     shallow: true,
+//                                                     depth: 1,
+//                                                     noTags: false
+//                                                 ] : [:],
+
+//                                                 [
+//                                                     $class: 'SparseCheckoutPaths',
+//                                                     sparseCheckoutPaths: [
+//                                                         [path: "src/${svc}"],
+//                                                         [path: "helm-chart"]
+//                                                     ]
+//                                                 ]
+//                                             ].findAll {it}
+//                                         ])
+
+//                                         // env.PIPELINE_BRANCH =
+//                                         //     sh(
+//                                         //         script: "git rev-parse --abbrev-ref HEAD",
+//                                         //         returnStdout: true
+//                                         //     ).trim()
+
+//                                         // echo "PIPELINE_BRANCH=${env.PIPELINE_BRANCH}"
+
+//                                         def childScript = readFile("src/${svc}/Jenkinsfile")
+
+//                                         evaluate(childScript)
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     parallel jobs
+//                 }
+//             }
+//         }
+//     }
+
+//     post {
+
+//         always {
+
+//             cleanWs(
+//                 deleteDirs: true,
+//                 disableDeferredWipeout: true
+//             )
+//         }
+//     }
+// }
+// ######################################################################################
 
 pipeline {
 
@@ -257,42 +468,38 @@ pipeline {
 
     stages {
 
-        // stage('Checkout') {
-        //     steps {
-        //         checkout scm
-        //     }
-        // }
-            stage('Checkout') {
-                    steps {
-                        script {
+        stage('Checkout') {
+            steps {
+                script {
 
-                            def branch =
-                                env.GIT_LOCAL_BRANCH ?:
-                                env.GIT_BRANCH?.replace("origin/", "") ?:
-                                "main"
+                    def branch =
+                        env.GIT_LOCAL_BRANCH ?:
+                        env.GIT_BRANCH?.replace("origin/", "") ?:
+                        "main"
 
-                            def isDev = (branch == "dev")
+                    def isDev = (branch == "dev")
 
-                            checkout([
-                                $class: 'GitSCM',
-                                branches: [[name: "*/${branch}"]],
-                                userRemoteConfigs: [[
-                                    url: scm.userRemoteConfigs[0].url,
-                                    credentialsId: 'jenkins-github-creds'
-                                ]],
-                                extensions: isDev ? [[
-                                    $class: 'CloneOption',
-                                    shallow: true,
-                                    depth: 1,
-                                    noTags: false
-                                ]] : []
-                            ])
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "*/${branch}"]],
+                        userRemoteConfigs: [[
+                            url: scm.userRemoteConfigs[0].url,
+                            credentialsId: 'jenkins-github-creds'
+                        ]],
+                        extensions: isDev ? [[
+                            $class: 'CloneOption',
+                            shallow: true,
+                            depth: 2,
+                            noTags: false
+                        ]] : []
+                    ])
 
-                            echo "Checked out branch=${branch}"
-                            echo "Mode=${isDev ? 'SHALLOW' : 'FULL'}"
-                        }
-                    }
+                    echo "Checked out branch=${branch}"
+                    echo "Mode=${isDev ? 'SHALLOW' : 'FULL'}"
                 }
+            }
+        }
+
         stage('Detect Changes') {
 
             steps {
@@ -320,13 +527,10 @@ pipeline {
 
                             if (file.startsWith("src/")) {
 
-                                def parts =
-                                    file.split("/")
+                                def parts = file.split("/")
 
                                 if (parts.size() > 1) {
-                                    services.add(
-                                        parts[1]
-                                    )
+                                    services.add(parts[1])
                                 }
                             }
                         }
@@ -335,14 +539,12 @@ pipeline {
 
                         echo "NO SERVICE CHANGES"
 
-                        currentBuild.result =
-                            "SUCCESS"
+                        currentBuild.result = "SUCCESS"
 
                         return
                     }
 
-                    env.CHANGED_SERVICES =
-                        services.join(",")
+                    env.CHANGED_SERVICES = services.join(",")
 
                     echo """
                     CHANGED SERVICES:
@@ -380,25 +582,15 @@ pipeline {
                                 ws("${env.WORKSPACE}-${svc}") {
 
                                     deleteDir()
-                                
-                                    // checkout scm
-
-                                    // sh """
-                                    //     git sparse-checkout init --cone
-
-                                    //     git sparse-checkout set src/${svc} \
-                                    //     helm-chart
-                                    // """
 
                                     script {
-                                        script {
 
-                                            def branch =
-                                                env.GIT_LOCAL_BRANCH ?:
-                                                env.GIT_BRANCH?.replace("origin/", "") ?:
-                                                "main"
+                                        def branch =
+                                            env.GIT_LOCAL_BRANCH ?:
+                                            env.GIT_BRANCH?.replace("origin/", "") ?:
+                                            "main"
 
-                                            def isDev = (branch == "dev")
+                                        def isDev = (branch == "dev")
 
                                         checkout([
                                             $class: 'GitSCM',
@@ -411,7 +603,7 @@ pipeline {
                                                 isDev ? [
                                                     $class: 'CloneOption',
                                                     shallow: true,
-                                                    depth: 1,
+                                                    depth: 2,
                                                     noTags: false
                                                 ] : [:],
 
@@ -422,24 +614,18 @@ pipeline {
                                                         [path: "helm-chart"]
                                                     ]
                                                 ]
-                                            ].findAll {it}
+                                            ].findAll { it }
                                         ])
 
-                                        // env.PIPELINE_BRANCH =
-                                        //     sh(
-                                        //         script: "git rev-parse --abbrev-ref HEAD",
-                                        //         returnStdout: true
-                                        //     ).trim()
-
-                                        // echo "PIPELINE_BRANCH=${env.PIPELINE_BRANCH}"
-
-                                        def childScript = readFile("src/${svc}/Jenkinsfile")
+                                        def childScript =
+                                            readFile("src/${svc}/Jenkinsfile")
 
                                         evaluate(childScript)
                                     }
                                 }
                             }
                         }
+
                     parallel jobs
                 }
             }
@@ -456,5 +642,4 @@ pipeline {
             )
         }
     }
-}
 }
