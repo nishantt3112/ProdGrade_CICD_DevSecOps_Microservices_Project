@@ -494,6 +494,11 @@ pipeline {
                         ]] : []
                     ])
 
+                    env.GIT_SHA = sh(
+                        script: "git rev-parse --short=7 HEAD",
+                        returnStdout: true
+                    ).trim()
+
                     echo "Checked out branch=${branch}"
                     echo "Mode=${isDev ? 'SHALLOW' : 'FULL'}"
                 }
