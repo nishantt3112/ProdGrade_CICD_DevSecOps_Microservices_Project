@@ -348,28 +348,28 @@ pipeline {
                                 """
 
                                 ws(
-                                  "${env.WORKSPACE}@${svc}"
+                                  "${env.WORKSPACE}-${svc}"
                                 ) {
 
                                     deleteDir()
                                 
-                                    checkout scm
+                                    // checkout scm
 
-                                    sh """
-                                        git sparse-checkout init --cone
+                                    // sh """
+                                    //     git sparse-checkout init --cone
 
-                                        git sparse-checkout set src/${svc} \
-                                        helm-chart
-                                    """
+                                    //     git sparse-checkout set src/${svc} \
+                                    //     helm-chart
+                                    // """
 
                                     script {
-                                        env.PIPELINE_BRANCH =
-                                            sh(
-                                                script: "git rev-parse --abbrev-ref HEAD",
-                                                returnStdout: true
-                                            ).trim()
+                                        // env.PIPELINE_BRANCH =
+                                        //     sh(
+                                        //         script: "git rev-parse --abbrev-ref HEAD",
+                                        //         returnStdout: true
+                                        //     ).trim()
 
-                                        echo "PIPELINE_BRANCH=${env.PIPELINE_BRANCH}"
+                                        // echo "PIPELINE_BRANCH=${env.PIPELINE_BRANCH}"
 
                                         def childScript =
                                             readFile(
