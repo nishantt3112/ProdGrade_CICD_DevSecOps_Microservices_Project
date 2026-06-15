@@ -644,24 +644,22 @@ pipeline {
             sh '''
                 rm -rf /var/lib/jenkins/workspace/*
             '''
-            cleanWs(
-                deleteDirs: true,
-                disableDeferredWipeout: true
-            )
+        //     cleanWs(
+        //         deleteDirs: true,
+        //         disableDeferredWipeout: true
+        //     )
 
-             deleteDir()
+        // dir("${env.WORKSPACE}@tmp") {
+        //     deleteDir()
+        // }
 
-        dir("${env.WORKSPACE}@tmp") {
-            deleteDir()
-        }
+        // dir("${env.WORKSPACE}@script") {
+        //     deleteDir()
+        // }
 
-        dir("${env.WORKSPACE}@script") {
-            deleteDir()
-        }
-
-        dir("${env.WORKSPACE}@libs") {
-            deleteDir()
-        }
+        // dir("${env.WORKSPACE}@libs") {
+        //     deleteDir()
+        // }
     }
 }
 }
