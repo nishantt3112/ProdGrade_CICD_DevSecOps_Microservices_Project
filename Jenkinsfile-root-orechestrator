@@ -470,7 +470,9 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                 deleteDir()
+                 sh '''
+                rm -rf /var/lib/jenkins/workspace/*
+            '''
                 script {
 
                     def branch =
@@ -644,10 +646,10 @@ pipeline {
             sh '''
                 rm -rf /var/lib/jenkins/workspace/*
             '''
-        //     cleanWs(
-        //         deleteDirs: true,
-        //         disableDeferredWipeout: true
-        //     )
+            // cleanWs(
+            //     deleteDirs: true,
+            //     disableDeferredWipeout: true
+            // )
 
         // dir("${env.WORKSPACE}@tmp") {
         //     deleteDir()
