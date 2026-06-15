@@ -36,7 +36,7 @@ FROM eclipse-temurin:25.0.2_10-jre-alpine@sha256:5fcc27581b238efbfda93da3a103f59
 #     wget -q -O- https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent_alpine.tar.gz \
 #     | tar xzv -C /opt/cprof && \
 #     rm -rf profiler_java_agent.tar.gz
-
+#
 WORKDIR /app
 COPY --from=builder /app .
 
