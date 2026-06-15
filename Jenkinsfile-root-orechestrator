@@ -468,11 +468,14 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                 sh '''
+                sh '''
                 rm -rf /var/lib/jenkins/workspace/*
             '''
+        stage('Checkout') {
+            steps {
+            //      sh '''
+            //     rm -rf /var/lib/jenkins/workspace/*
+            // '''
                 script {
 
                     def branch =
