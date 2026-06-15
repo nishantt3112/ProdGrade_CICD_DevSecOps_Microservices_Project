@@ -468,9 +468,9 @@ pipeline {
 
     stages {
 
-        deleteDir()
         stage('Checkout') {
             steps {
+                 deleteDir()
                 script {
 
                     def branch =
