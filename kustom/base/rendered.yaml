@@ -643,7 +643,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice:sha256:ce357ff8ff8ce8a19592e4901710e0334a5b627a27e34e490fbf26e0219b0c65
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice:sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
 
           ports:
             - containerPort: 7070
@@ -715,7 +715,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice:sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice:sha256:82f21e88672066c4d50cd26adbd6bb5adbd8a296ef84f0ec2ad44db03f5d65db
 
           ports:
             - containerPort: 5050
