@@ -715,7 +715,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice:sha256:82f21e88672066c4d50cd26adbd6bb5adbd8a296ef84f0ec2ad44db03f5d65db
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice:sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
 
           ports:
             - containerPort: 5050
@@ -811,7 +811,7 @@ spec:
               drop:
                 - ALL
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice:sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice:sha256:1950ad979b881c89e57f3519f04a27ef68914a040034e567c565555a1b72704b
 
           ports:
             - name: grpc
