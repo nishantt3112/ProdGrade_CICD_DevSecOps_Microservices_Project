@@ -60,6 +60,9 @@ ciPipeline(
 
     gitUrl: scm.userRemoteConfigs[0].url,
 
+    helmChartImageName: svc,
+    runHelm: true ,
+
     serviceName: svc,
     environment: 'dev',
 
