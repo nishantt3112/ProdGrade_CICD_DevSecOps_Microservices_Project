@@ -61,7 +61,8 @@ ciPipeline(
     serviceName: svc,
     environment: 'dev',
 
-    helmChartImageName: 'checkoutservice'
+    helmChartImageName: svc,
+    runHelm: true,
 
     servicePath: 'src/checkoutservice',
 
