@@ -71,8 +71,9 @@ ciPipeline(
     gitUrl: scm.userRemoteConfigs[0].url,
 
     serviceName: svc,
-
-    servicePath: 'src/cartservice',
+    servicePath: "src/${svc}",
+    helmChartImageName: svc,
+    runHelm: true,
     environment: 'dev',
 
      ecrRepo: '389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice',

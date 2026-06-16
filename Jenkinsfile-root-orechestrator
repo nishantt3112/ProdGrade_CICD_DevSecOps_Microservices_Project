@@ -651,6 +651,9 @@ pipeline {
                 deleteDirs: true,
                 disableDeferredWipeout: true
             )
+            sh """
+                docker system prune -af
+            """
 
         // dir("${env.WORKSPACE}@tmp") {
         //     deleteDir()
