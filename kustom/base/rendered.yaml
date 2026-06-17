@@ -1300,7 +1300,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice:sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice:sha256:c38e5112de10350ad554922ba4f2f335f2aa03b025dfcd4b05a969de6318df3b
 
           ports:
             - containerPort: 50051
