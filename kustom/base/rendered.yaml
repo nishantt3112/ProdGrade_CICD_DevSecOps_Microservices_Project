@@ -715,7 +715,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice:sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice:sha256:79e506a8ef0411f684504fd7f18ac0d0b8ae20b21aa6b8272699b808f0235539
 
           ports:
             - containerPort: 5050
