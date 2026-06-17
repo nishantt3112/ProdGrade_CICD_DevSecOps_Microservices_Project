@@ -1,38 +1,110 @@
+# FROM gradle:8.5-jdk21
+
+# WORKDIR /app
+
+# CMD ["sh"]
+
+# FROM gradle:8.5-jdk21
+
+# WORKDIR /app
+
+# # Basic tools install
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     git curl unzip zip wget \
+#     && rm -rf /var/lib/apt/lists/*
+
+# # Install Trivy
+# RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+# # Install OWASP Dependency-Check
+# ENV DEPENDENCY_CHECK_VERSION=10.0.4
+# RUN wget https://github.com/jeremylong/DependencyCheck/releases/download/v${DEPENDENCY_CHECK_VERSION}/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip \
+#     && unzip dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip -d /opt/ \
+#     && rm dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip \
+#     && ln -s /opt/dependency-check/bin/dependency-check.sh /usr/local/bin/dependency-check \
+#     && chmod +x /usr/local/bin/dependency-check
+
+# # Create cache and report directories
+# RUN mkdir -p /app/build/reports /tmp/trivy-cache /tmp/.gradle
+
+# # Important: Change ownership to gradle user (Jenkins ke liye zaroori)
+# RUN chown -R gradle:gradle /app /tmp
+
+# # Switch to gradle user
+# USER gradle
+
+# CMD ["sh"]
+
+
+############################
 FROM gradle:8.5-jdk21
 
 WORKDIR /app
 
-CMD ["sh"]
-
-FROM gradle:8.5-jdk21
-
-WORKDIR /app
-
-# Basic tools install
+# ------------------------------------------------
+# Base tools
+# ------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git curl unzip zip wget \
+    git \
+    curl \
+    unzip \
+    zip \
+    wget \
+    jq \
+    ca-certificates \
+    gnupg \
     && rm -rf /var/lib/apt/lists/*
 
+# ------------------------------------------------
+# Install AWS CLI v2
+# ------------------------------------------------
+RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip" \
+    && unzip -q /tmp/awscliv2.zip -d /tmp \
+    && /tmp/aws/install \
+    && rm -rf /tmp/aws /tmp/awscliv2.zip
+
+# ------------------------------------------------
+# Install Helm
+# ------------------------------------------------
+RUN curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# ------------------------------------------------
+# Install yq
+# ------------------------------------------------
+RUN YQ_VERSION=v4.46.1 && \
+    wget -q https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/local/bin/yq && \
+    chmod +x /usr/local/bin/yq
+
+# ------------------------------------------------
 # Install Trivy
+# ------------------------------------------------
 RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
-# Install OWASP Dependency-Check
+# ------------------------------------------------
+# Install OWASP Dependency Check
+# ------------------------------------------------
 ENV DEPENDENCY_CHECK_VERSION=10.0.4
-RUN wget https://github.com/jeremylong/DependencyCheck/releases/download/v${DEPENDENCY_CHECK_VERSION}/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip \
-    && unzip dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip -d /opt/ \
+
+RUN wget -q https://github.com/jeremylong/DependencyCheck/releases/download/v${DEPENDENCY_CHECK_VERSION}/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip \
+    && unzip -q dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip -d /opt/ \
     && rm dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip \
     && ln -s /opt/dependency-check/bin/dependency-check.sh /usr/local/bin/dependency-check \
     && chmod +x /usr/local/bin/dependency-check
 
-# Create cache and report directories
-RUN mkdir -p /app/build/reports /tmp/trivy-cache /tmp/.gradle
+# ------------------------------------------------
+# Jenkins friendly dirs
+# ------------------------------------------------
+RUN mkdir -p \
+    /app/build/reports \
+    /tmp/trivy-cache \
+    /tmp/.gradle
 
-# Important: Change ownership to gradle user (Jenkins ke liye zaroori)
-RUN chown -R gradle:gradle /app /tmp
+RUN chown -R gradle:gradle \
+    /app \
+    /tmp
 
-# Switch to gradle user
 USER gradle
 
+WORKDIR /app
+
 CMD ["sh"]
-
-
