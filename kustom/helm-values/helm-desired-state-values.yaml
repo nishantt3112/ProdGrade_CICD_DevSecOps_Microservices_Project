@@ -63,6 +63,9 @@ images:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice
     tag: 24ebccd-89
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+  frontendservice:
+    tag: 03c96db-106
+    digest: sha256:e0f65d66623d8105952b07a9aacb6520e7771ffa0f10829a7f049ddcf8ec650c
 serviceAccounts:
   # Specifies whether service accounts should be created.
   create: true
