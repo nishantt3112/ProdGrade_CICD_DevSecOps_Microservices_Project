@@ -483,7 +483,7 @@ pipeline {
                         env.GIT_BRANCH?.replace("origin/", "") ?:
                         "main"
 
-                    def isDev = (branch == "dev")
+                    def isDev = (branch == "main")
 
                     checkout([
                         $class: 'GitSCM',
