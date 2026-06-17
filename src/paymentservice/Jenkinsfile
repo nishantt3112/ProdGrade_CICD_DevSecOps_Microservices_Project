@@ -61,6 +61,8 @@ ciPipeline(
     gitUrl: scm.userRemoteConfigs[0].url,
 
     serviceName: svc,
+    helmChartImageName: svc,
+    runHelm: true ,
 
     servicePath: 'src/paymentservice',
     environment: 'dev',
