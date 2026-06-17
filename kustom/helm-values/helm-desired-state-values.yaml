@@ -21,59 +21,48 @@ images:
     # repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice
     # Overrides the image tag whose default is the chart appVersion.
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/adservice
-    tag: 74f92e3-15
-    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+    tag: 2b9c6e8-92
+    digest: sha256:883e155d0b20336de9bd75d72b58307281df041c93be58963969da0682ac4131
   cartservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice
     tag: 15e53bc-78
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-
   checkoutservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice
     tag: 15e53bc-78
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-
   currencyservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice
     tag: 15e53bc-78
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-
   emailservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice
     tag: 15e53bc-78
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-
   frontend:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend
     tag: 96f1318-96
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-  
   loadgenerator:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice
     tag: b0e1f94-82
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-
   paymentservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice
     tag: 6502441-85
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-
   productcatalogservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice
     tag: 7811c6c-87
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-
   recommendationservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/recommendationservice
     tag: 6eb80da-88
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-
   shippingservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice
     tag: 24ebccd-89
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
-
-
 serviceAccounts:
   # Specifies whether service accounts should be created.
   create: true
@@ -81,37 +70,29 @@ serviceAccounts:
   annotations: {}
   # Annotations to add only for the cartservice app. This allows to follow the least privilege principle where only cartservice needs to connect to external database for example via Workload Identity.
   annotationsOnlyForCartservice: false
-
 networkPolicies:
   # Specifies if the NetworkPolicies are created or not. If true, one fine granular NetworkPolicy per app is created.
   create: false
-
 sidecars:
   # Specifies if the Sidecars are created or not. If true, one fine granular Sidecar per app is created.
   create: false
-
 authorizationPolicies:
   # Specifies if the AuthorizationPolicies are created or not. If true, one fine granular AuthorizationPolicy per app is created.
   create: false
-
 opentelemetryCollector:
   create: false
   name: opentelemetrycollector
   # Specifies the project id for the otel collector. If set as "PROJECT_ID" (default value), an initContainer will automatically retrieve the project id value from the metadata server.
   projectId: "PROJECT_ID"
-
 googleCloudOperations:
   profiler: false
   tracing: false
   metrics: false
-
 seccompProfile:
   enable: false
   type: RuntimeDefault
-
 securityContext:
   enable: true
-
 adService:
   create: true
   name: adservice
@@ -122,7 +103,6 @@ adService:
     limits:
       cpu: 300m
       memory: 300Mi
-
 cartService:
   create: true
   name: cartservice
@@ -133,7 +113,6 @@ cartService:
     limits:
       cpu: 300m
       memory: 256Mi
-
 checkoutService:
   create: true
   name: checkoutservice
@@ -144,7 +123,6 @@ checkoutService:
     limits:
       cpu: 200m
       memory: 128Mi
-
 currencyService:
   create: true
   name: currencyservice
@@ -155,7 +133,6 @@ currencyService:
     limits:
       cpu: 200m
       memory: 256Mi
-
 emailService:
   create: true
   name: emailservice
@@ -166,7 +143,6 @@ emailService:
     limits:
       cpu: 200m
       memory: 128Mi
-
 frontend:
   create: true
   name: frontend
@@ -178,7 +154,7 @@ frontend:
   virtualService:
     create: false
     hosts:
-    - "*"
+      - "*"
     gateway:
       name: asm-ingressgateway
       namespace: asm-ingress
@@ -191,7 +167,6 @@ frontend:
     limits:
       cpu: 200m
       memory: 128Mi
-
 loadGenerator:
   create: true
   name: loadgenerator
@@ -203,7 +178,6 @@ loadGenerator:
     limits:
       cpu: 500m
       memory: 512Mi
-
 paymentService:
   create: true
   name: paymentservice
@@ -214,7 +188,6 @@ paymentService:
     limits:
       cpu: 200m
       memory: 256Mi
-
 productCatalogService:
   create: true
   name: productcatalogservice
@@ -227,7 +200,6 @@ productCatalogService:
     limits:
       cpu: 200m
       memory: 128Mi
-
 recommendationService:
   create: true
   name: recommendationservice
@@ -238,7 +210,6 @@ recommendationService:
     limits:
       cpu: 200m
       memory: 450Mi
-
 shippingService:
   create: true
   name: shippingservice
@@ -249,7 +220,6 @@ shippingService:
     limits:
       cpu: 200m
       memory: 128Mi
-
 cartDatabase:
   # Specifies the type of the cartservice's database, could be either redis or spanner.
   type: redis
@@ -265,10 +235,8 @@ cartDatabase:
     endpointAddress: ""
     endpointPort: ""
     certificate: ""
-
 # @TODO: This service is not currently available in Helm.
 # https://github.com/GoogleCloudPlatform/microservices-demo/tree/main/kustomize/components/shopping-assistant
 shoppingAssistantService:
   create: false
   name: shoppingassistantservice
-
