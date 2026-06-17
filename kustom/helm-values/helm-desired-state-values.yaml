@@ -53,8 +53,8 @@ images:
     digest: sha256:9adb57a41b3c8d6eb54d612f02ab190de5dee7731ceca4804b782815cf2fcf06
   productcatalogservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice
-    tag: 7811c6c-87
-    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+    tag: 83490c6-113
+    digest: sha256:a129db60e0d1c9d231f6b4cc701ffcdc1ba0d87177e2e987160060dd5dec90f7
   recommendationservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/recommendationservice
     tag: 6eb80da-88
