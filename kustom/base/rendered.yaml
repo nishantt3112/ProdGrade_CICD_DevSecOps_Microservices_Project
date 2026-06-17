@@ -884,7 +884,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice:sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice:sha256:219f73a5decb0b2ffc8bbe72c5a2b916b0a48f235264d0b3e9d928559c1e7083
 
           ports:
             - containerPort: 8080
