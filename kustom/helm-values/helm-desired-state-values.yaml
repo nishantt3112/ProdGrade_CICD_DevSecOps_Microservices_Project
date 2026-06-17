@@ -29,8 +29,8 @@ images:
     digest: sha256:63cc8f0c7c2e09e6364cadaa9d4cfc7e41daf3115bea9d34a92d8a6feaeed46e
   checkoutservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice
-    tag: 2de994f-96
-    digest: sha256:79e506a8ef0411f684504fd7f18ac0d0b8ae20b21aa6b8272699b808f0235539
+    tag: 50a7c25-100
+    digest: sha256:9e9aea28087334d19d8d001f996634495c2d347abbda2928716c8b53dd7479ef
   currencyservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice
     tag: d4f5971-98
