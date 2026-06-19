@@ -25,7 +25,7 @@ metadata:
     app: {{ .Values.frontend.name }}
 
 spec:
-  replicas: {{ .Values.adService.replicas }}
+  replicas: {{ .Values.frontend.replicas }}
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -38,9 +38,9 @@ spec:
       trafficRouting:
         plugins:
           argoproj-labs/gatewayAPI:
-            namespace: boutique-app
             httpRoutes:
               - name: http-app-route
+                namespace: boutique-app
       maxSurge: 1
       maxUnavailable: 0
       steps:
