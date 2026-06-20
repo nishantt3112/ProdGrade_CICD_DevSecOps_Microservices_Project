@@ -350,6 +350,145 @@ spec:
       port: 50051
       targetPort: 50051
 ---
+# Source: onlineboutique/templates/adservice.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adservice
+  namespace: default
+  labels:
+    app: adservice
+spec:
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: adservice
+  strategy:
+   type: RollingUpdate
+   rollingUpdate: 
+    maxSurge: 1
+    maxUnavailable: 0
+
+  template:
+    metadata:
+      labels:
+        app: adservice
+    spec:
+      serviceAccountName: adservice
+
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+
+      containers:
+        - name: server
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/adservice:sha256:a1f5c5f65b2a09cef42cd40cd24f6e5b050d7c95c339a2b98b4fefc47f815a69
+
+          ports:
+            - containerPort: 9555
+
+          env:
+            - name: PORT
+              value: "9555"
+
+          resources:
+            limits:
+              cpu: 300m
+              memory: 300Mi
+            requests:
+              cpu: 200m
+              memory: 180Mi
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          readinessProbe:
+            grpc:
+              port: 9555
+            initialDelaySeconds: 20
+            periodSeconds: 15
+
+          livenessProbe:
+            grpc:
+              port: 9555
+            initialDelaySeconds: 20
+            periodSeconds: 15
+---
+# Source: onlineboutique/templates/cartservice.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartservice
+  namespace: default
+  labels:
+    app: cartservice
+spec:
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: cartservice
+  strategy:
+   type: RollingUpdate
+   rollingUpdate: 
+    maxSurge: 1
+    maxUnavailable: 0
+
+  template:
+    metadata:
+
+      labels:
+        app: cartservice
+
+    spec:
+      serviceAccountName: cartservice
+
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+
+      containers:
+        - name: server
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice:sha256:63cc8f0c7c2e09e6364cadaa9d4cfc7e41daf3115bea9d34a92d8a6feaeed46e
+
+          ports:
+            - containerPort: 7070
+
+          env:
+            - name: REDIS_ADDR
+              value: "redis-cart:6379"
+
+          resources:
+            limits:
+              cpu: 300m
+              memory: 256Mi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+
+          readinessProbe:
+            grpc:
+              port: 7070
+            initialDelaySeconds: 15
+
+          livenessProbe:
+            grpc:
+              port: 7070
+            initialDelaySeconds: 15
+            periodSeconds: 10
+---
 # Source: onlineboutique/templates/cartservice.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -399,6 +538,223 @@ spec:
       volumes:
         - name: redis-data
           emptyDir: {}
+---
+# Source: onlineboutique/templates/checkoutservice.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkoutservice
+  namespace: default
+  labels:
+    app: checkoutservice
+
+spec:
+  
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: checkoutservice
+
+  strategy:
+   type: RollingUpdate
+   rollingUpdate: 
+    maxSurge: 1
+    maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: checkoutservice
+
+    spec:
+      serviceAccountName: checkoutservice
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+
+      containers:
+        - name: server
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice:sha256:64223ba723bcb7932852c4a607b58f07b17ea7fd00be3eff1a628b195d20f4a7
+
+          ports:
+            - containerPort: 5050
+
+          env:
+            - name: PORT
+              value: "5050"
+
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"
+
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shippingservice:50051"
+
+            - name: PAYMENT_SERVICE_ADDR
+              value: "paymentservice:50051"
+
+            - name: EMAIL_SERVICE_ADDR
+              value: "emailservice:5000"
+
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currencyservice:7000"
+
+            - name: CART_SERVICE_ADDR
+              value: "cartservice:7070"
+
+          readinessProbe:
+            grpc:
+              port: 5050
+
+          livenessProbe:
+            grpc:
+              port: 5050
+
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+---
+# Source: onlineboutique/templates/currencyservice.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: currencyservice
+  namespace: default
+  labels:
+    app: currencyservice
+
+spec:
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: currencyservice
+
+  strategy:
+   type: RollingUpdate
+   rollingUpdate: 
+    maxSurge: 1
+    maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: currencyservice
+
+    spec:
+      serviceAccountName: currencyservice
+
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+
+      containers:
+        - name: server
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice:sha256:a0e8505e69c0b0e3d9b1b6df0f253e52476366efd52904197827e14f8cff13e3
+
+          ports:
+            - name: grpc
+              containerPort: 7000
+
+          env:
+            - name: PORT
+              value: "7000"
+            - name: DISABLE_PROFILER
+              value: "1"
+
+          readinessProbe:
+            grpc:
+              port: 7000
+
+          livenessProbe:
+            grpc:
+              port: 7000
+
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+# Source: onlineboutique/templates/emailservice.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emailservice
+  namespace: default
+  labels:
+    app: emailservice
+
+spec:
+
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: emailservice
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: emailservice
+
+    spec:
+      serviceAccountName: emailservice
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+
+      containers:
+        - name: server
+
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice:sha256:219f73a5decb0b2ffc8bbe72c5a2b916b0a48f235264d0b3e9d928559c1e7083
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: PORT
+              value: "8080"
+
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
 ---
 # Source: onlineboutique/templates/loadgenerator.yaml
 apiVersion: apps/v1
@@ -502,6 +858,272 @@ spec:
               cpu: 300m
               memory: 256Mi
 ---
+# Source: onlineboutique/templates/paymentservice.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paymentservice
+  namespace: default
+  labels:
+    app: paymentservice
+
+spec:
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: paymentservice
+
+  strategy:
+   type: RollingUpdate
+   rollingUpdate: 
+    maxSurge: 1
+    maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: paymentservice
+
+    spec:
+      serviceAccountName: paymentservice
+
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+
+      containers:
+        - name: server
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice:sha256:9adb57a41b3c8d6eb54d612f02ab190de5dee7731ceca4804b782815cf2fcf06
+
+          ports:
+            - containerPort: 50051
+
+          env:
+            - name: PORT
+              value: "50051"
+            - name: DISABLE_PROFILER
+              value: "1"
+
+          readinessProbe:
+            grpc:
+              port: 50051
+
+          livenessProbe:
+            grpc:
+              port: 50051
+
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+# Source: onlineboutique/templates/productcatalogservice.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productcatalogservice
+  namespace: default
+  labels:
+    app: productcatalogservice
+
+spec:
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: productcatalogservice
+  strategy:
+   type: RollingUpdate
+   rollingUpdate: 
+    maxSurge: 1
+    maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: productcatalogservice
+
+    spec:
+      serviceAccountName: productcatalogservice
+
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+
+      containers:
+        - name: server
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice:sha256:a129db60e0d1c9d231f6b4cc701ffcdc1ba0d87177e2e987160060dd5dec90f7
+
+          ports:
+            - containerPort: 3550
+
+          env:
+            - name: PORT
+              value: "3550"
+
+            - name: EXTRA_LATENCY
+              value: 
+            - name: DISABLE_PROFILER
+              value: "1"
+
+          readinessProbe:
+            grpc:
+              port: 3550
+
+          livenessProbe:
+            grpc:
+              port: 3550
+
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+---
+# Source: onlineboutique/templates/recommendationservice.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendationservice
+  namespace: default
+  labels:
+    app: recommendationservice
+
+spec:
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: recommendationservice
+  strategy:
+   type: RollingUpdate
+   rollingUpdate: 
+    maxSurge: 1
+    maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: recommendationservice
+
+    spec:
+      serviceAccountName: recommendationservice
+
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+
+      containers:
+        - name: server
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/recommendationservice:sha256:9d0e818cc7ccc9a22c1cdb5cf1c96e64cfd312fa3f28db9f64af0303e602a306
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: PORT
+              value: "8080"
+
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"
+            - name: DISABLE_PROFILER
+              value: "1"
+
+          readinessProbe:
+            grpc:
+              port: 8080
+            periodSeconds: 5
+
+          livenessProbe:
+            grpc:
+              port: 8080
+            periodSeconds: 5
+
+          resources:
+            limits:
+              cpu: 200m
+              memory: 450Mi
+            requests:
+              cpu: 100m
+              memory: 220Mi
+---
+# Source: onlineboutique/templates/shippingservice.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shippingservice
+  namespace: default
+  labels:
+    app: shippingservice
+
+spec:
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: shippingservice
+  strategy:
+   type: RollingUpdate
+   rollingUpdate: 
+    maxSurge: 1
+    maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: shippingservice
+
+    spec:
+      serviceAccountName: shippingservice
+
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+
+      containers:
+        - name: server
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice:sha256:c38e5112de10350ad554922ba4f2f335f2aa03b025dfcd4b05a969de6318df3b
+
+          ports:
+            - containerPort: 50051
+
+          env:
+            - name: PORT
+              value: "50051"
+            - name: DISABLE_PROFILER
+              value: "1"
+
+          readinessProbe:
+            grpc:
+              port: 50051
+            periodSeconds: 5
+
+          livenessProbe:
+            grpc:
+              port: 50051
+
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+---
 # Source: onlineboutique/templates/common.yaml
 # Copyright 2024 Google LLC
 #
@@ -516,398 +1138,6 @@ spec:
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
----
-# Source: onlineboutique/templates/adservice.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: adservice
-  namespace: default
-  labels:
-    app: adservice
-spec:
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: adservice
-  strategy:
-    canary:
-      maxSurge: 1
-      maxUnavailable: 0
-    steps:
-      - setWeight: 20
-      - pause: 
-          duration: 60s
-      - setWeight: 50
-      - pause:
-          duration: 60s
-      - setWeight: 100
-
-  template:
-    metadata:
-      labels:
-        app: adservice
-    spec:
-      serviceAccountName: adservice
-
-      terminationGracePeriodSeconds: 5
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsUser: 1000
-        runAsNonRoot: true
-
-      containers:
-        - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/adservice:sha256:883e155d0b20336de9bd75d72b58307281df041c93be58963969da0682ac4131
-
-          ports:
-            - containerPort: 9555
-
-          env:
-            - name: PORT
-              value: "9555"
-
-          resources:
-            limits:
-              cpu: 300m
-              memory: 300Mi
-            requests:
-              cpu: 200m
-              memory: 180Mi
-
-          securityContext:
-            allowPrivilegeEscalation: false
-            privileged: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
-
-          readinessProbe:
-            grpc:
-              port: 9555
-            initialDelaySeconds: 20
-            periodSeconds: 15
-
-          livenessProbe:
-            grpc:
-              port: 9555
-            initialDelaySeconds: 20
-            periodSeconds: 15
----
-# Source: onlineboutique/templates/cartservice.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: cartservice
-  namespace: default
-  labels:
-    app: cartservice
-spec:
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: cartservice
-  strategy:
-    canary:
-      maxSurge: 1
-      maxUnavailable: 0
-    steps:
-      - setWeight: 20
-      - pause: 
-          duration: 60s
-      - setWeight: 50
-      - pause:
-          duration: 60s
-      - setWeight: 100
-  
-
-  template:
-    metadata:
-
-      labels:
-        app: cartservice
-
-    spec:
-      serviceAccountName: cartservice
-
-      terminationGracePeriodSeconds: 5
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsUser: 1000
-        runAsNonRoot: true
-
-      containers:
-        - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice:sha256:63cc8f0c7c2e09e6364cadaa9d4cfc7e41daf3115bea9d34a92d8a6feaeed46e
-
-          ports:
-            - containerPort: 7070
-
-          env:
-            - name: REDIS_ADDR
-              value: "redis-cart:6379"
-
-          resources:
-            limits:
-              cpu: 300m
-              memory: 256Mi
-            requests:
-              cpu: 200m
-              memory: 128Mi
-
-          readinessProbe:
-            grpc:
-              port: 7070
-            initialDelaySeconds: 15
-
-          livenessProbe:
-            grpc:
-              port: 7070
-            initialDelaySeconds: 15
-            periodSeconds: 10
----
-# Source: onlineboutique/templates/checkoutservice.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: checkoutservice
-  namespace: default
-  labels:
-    app: checkoutservice
-
-spec:
-  
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: checkoutservice
-
-  strategy:
-    canary:
-      maxSurge: 1
-      maxUnavailable: 0
-    steps:
-      - setWeight: 20
-      - pause: 
-          duration: 60s
-      - setWeight: 50
-      - pause:
-          duration: 60s
-      - setWeight: 100
-  template:
-    metadata:
-      labels:
-        app: checkoutservice
-
-    spec:
-      serviceAccountName: checkoutservice
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsUser: 1000
-        runAsNonRoot: true
-
-      containers:
-        - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice:sha256:64223ba723bcb7932852c4a607b58f07b17ea7fd00be3eff1a628b195d20f4a7
-
-          ports:
-            - containerPort: 5050
-
-          env:
-            - name: PORT
-              value: "5050"
-
-            - name: PRODUCT_CATALOG_SERVICE_ADDR
-              value: "productcatalogservice:3550"
-
-            - name: SHIPPING_SERVICE_ADDR
-              value: "shippingservice:50051"
-
-            - name: PAYMENT_SERVICE_ADDR
-              value: "paymentservice:50051"
-
-            - name: EMAIL_SERVICE_ADDR
-              value: "emailservice:5000"
-
-            - name: CURRENCY_SERVICE_ADDR
-              value: "currencyservice:7000"
-
-            - name: CART_SERVICE_ADDR
-              value: "cartservice:7070"
-
-          readinessProbe:
-            grpc:
-              port: 5050
-
-          livenessProbe:
-            grpc:
-              port: 5050
-
-          resources:
-            limits:
-              cpu: 200m
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              memory: 64Mi
----
-# Source: onlineboutique/templates/currencyservice.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: currencyservice
-  namespace: default
-  labels:
-    app: currencyservice
-
-spec:
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: currencyservice
-
-  strategy:
-    canary:
-      maxSurge: 1
-      maxUnavailable: 0
-    steps:
-      - setWeight: 20
-      - pause: 
-          duration: 60s
-      - setWeight: 50
-      - pause:
-          duration: 60s
-      - setWeight: 100
-  template:
-    metadata:
-      labels:
-        app: currencyservice
-
-    spec:
-      serviceAccountName: currencyservice
-
-      terminationGracePeriodSeconds: 5
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsUser: 1000
-        runAsNonRoot: true
-
-      containers:
-        - name: server
-          securityContext:
-            allowPrivilegeEscalation: false
-            privileged: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
-
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice:sha256:a0e8505e69c0b0e3d9b1b6df0f253e52476366efd52904197827e14f8cff13e3
-
-          ports:
-            - name: grpc
-              containerPort: 7000
-
-          env:
-            - name: PORT
-              value: "7000"
-            - name: DISABLE_PROFILER
-              value: "1"
-
-          readinessProbe:
-            grpc:
-              port: 7000
-
-          livenessProbe:
-            grpc:
-              port: 7000
-
-          resources:
-            limits:
-              cpu: 200m
-              memory: 256Mi
-            requests:
-              cpu: 100m
-              memory: 128Mi
----
-# Source: onlineboutique/templates/emailservice.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: emailservice
-  namespace: default
-  labels:
-    app: emailservice
-
-spec:
-
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: emailservice
-
-  strategy:
-    canary:
-      maxSurge: 1
-      maxUnavailable: 0
-    steps:
-      - setWeight: 20
-      - pause: 
-          duration: 60s
-      - setWeight: 50
-      - pause:
-          duration: 60s
-      - setWeight: 100
-  template:
-    metadata:
-      labels:
-        app: emailservice
-
-    spec:
-      serviceAccountName: emailservice
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsUser: 1000
-        runAsNonRoot: true
-
-      containers:
-        - name: server
-
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice:sha256:219f73a5decb0b2ffc8bbe72c5a2b916b0a48f235264d0b3e9d928559c1e7083
-
-          ports:
-            - containerPort: 8080
-
-          env:
-            - name: PORT
-              value: "8080"
-
-          resources:
-            limits:
-              cpu: 200m
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              memory: 64Mi
-
-          securityContext:
-            allowPrivilegeEscalation: false
-            privileged: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
 ---
 # Source: onlineboutique/templates/frontend.yaml
 apiVersion: argoproj.io/v1alpha1
@@ -932,9 +1162,9 @@ spec:
       trafficRouting:
         plugins:
           argoproj-labs/gatewayAPI:
-            namespace: boutique-app
             httpRoutes:
               - name: http-app-route
+                namespace: boutique-app
       maxSurge: 1
       maxUnavailable: 0
       steps:
@@ -1025,300 +1255,6 @@ spec:
               httpHeaders:
                 - name: Cookie
                   value: "shop_session-id=x-liveness-probe"
-
-          resources:
-            limits:
-              cpu: 200m
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              memory: 64Mi
----
-# Source: onlineboutique/templates/paymentservice.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: paymentservice
-  namespace: default
-  labels:
-    app: paymentservice
-
-spec:
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: paymentservice
-
-  strategy:
-    canary:
-      maxSurge: 1
-      maxUnavailable: 0
-    steps:
-      - setWeight: 20
-      - pause: 
-          duration: 60s
-      - setWeight: 50
-      - pause:
-          duration: 60s
-      - setWeight: 100
-  template:
-    metadata:
-      labels:
-        app: paymentservice
-
-    spec:
-      serviceAccountName: paymentservice
-
-      terminationGracePeriodSeconds: 5
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-
-      containers:
-        - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice:sha256:9adb57a41b3c8d6eb54d612f02ab190de5dee7731ceca4804b782815cf2fcf06
-
-          ports:
-            - containerPort: 50051
-
-          env:
-            - name: PORT
-              value: "50051"
-            - name: DISABLE_PROFILER
-              value: "1"
-
-          readinessProbe:
-            grpc:
-              port: 50051
-
-          livenessProbe:
-            grpc:
-              port: 50051
-
-          resources:
-            limits:
-              cpu: 200m
-              memory: 256Mi
-            requests:
-              cpu: 100m
-              memory: 128Mi
----
-# Source: onlineboutique/templates/productcatalogservice.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: productcatalogservice
-  namespace: default
-  labels:
-    app: productcatalogservice
-
-spec:
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: productcatalogservice
-  strategy:
-    canary:
-      maxSurge: 1
-      maxUnavailable: 0
-    steps:
-      - setWeight: 20
-      - pause: 
-          duration: 60s
-      - setWeight: 50
-      - pause:
-          duration: 60s
-      - setWeight: 100
-  template:
-    metadata:
-      labels:
-        app: productcatalogservice
-
-    spec:
-      serviceAccountName: productcatalogservice
-
-      terminationGracePeriodSeconds: 5
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-
-      containers:
-        - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice:sha256:a129db60e0d1c9d231f6b4cc701ffcdc1ba0d87177e2e987160060dd5dec90f7
-
-          ports:
-            - containerPort: 3550
-
-          env:
-            - name: PORT
-              value: "3550"
-
-            - name: EXTRA_LATENCY
-              value: 
-            - name: DISABLE_PROFILER
-              value: "1"
-
-          readinessProbe:
-            grpc:
-              port: 3550
-
-          livenessProbe:
-            grpc:
-              port: 3550
-
-          resources:
-            limits:
-              cpu: 200m
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              memory: 64Mi
----
-# Source: onlineboutique/templates/recommendationservice.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: recommendationservice
-  namespace: default
-  labels:
-    app: recommendationservice
-
-spec:
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: recommendationservice
-  strategy:
-    canary:
-      maxSurge: 1
-      maxUnavailable: 0
-    steps:
-      - setWeight: 20
-      - pause: 
-          duration: 60s
-      - setWeight: 50
-      - pause:
-          duration: 60s
-      - setWeight: 100
-  template:
-    metadata:
-      labels:
-        app: recommendationservice
-
-    spec:
-      serviceAccountName: recommendationservice
-
-      terminationGracePeriodSeconds: 5
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-
-      containers:
-        - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/recommendationservice:sha256:9d0e818cc7ccc9a22c1cdb5cf1c96e64cfd312fa3f28db9f64af0303e602a306
-
-          ports:
-            - containerPort: 8080
-
-          env:
-            - name: PORT
-              value: "8080"
-
-            - name: PRODUCT_CATALOG_SERVICE_ADDR
-              value: "productcatalogservice:3550"
-            - name: DISABLE_PROFILER
-              value: "1"
-
-          readinessProbe:
-            grpc:
-              port: 8080
-            periodSeconds: 5
-
-          livenessProbe:
-            grpc:
-              port: 8080
-            periodSeconds: 5
-
-          resources:
-            limits:
-              cpu: 200m
-              memory: 450Mi
-            requests:
-              cpu: 100m
-              memory: 220Mi
----
-# Source: onlineboutique/templates/shippingservice.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: shippingservice
-  namespace: default
-  labels:
-    app: shippingservice
-
-spec:
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: shippingservice
-  strategy:
-    canary:
-      maxSurge: 1
-      maxUnavailable: 0
-    steps:
-      - setWeight: 20
-      - pause: 
-          duration: 60s
-      - setWeight: 50
-      - pause:
-          duration: 60s
-      - setWeight: 100
-  template:
-    metadata:
-      labels:
-        app: shippingservice
-
-    spec:
-      serviceAccountName: shippingservice
-
-      terminationGracePeriodSeconds: 5
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-
-      containers:
-        - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice:sha256:c38e5112de10350ad554922ba4f2f335f2aa03b025dfcd4b05a969de6318df3b
-
-          ports:
-            - containerPort: 50051
-
-          env:
-            - name: PORT
-              value: "50051"
-            - name: DISABLE_PROFILER
-              value: "1"
-
-          readinessProbe:
-            grpc:
-              port: 50051
-            periodSeconds: 5
-
-          livenessProbe:
-            grpc:
-              port: 50051
 
           resources:
             limits:
