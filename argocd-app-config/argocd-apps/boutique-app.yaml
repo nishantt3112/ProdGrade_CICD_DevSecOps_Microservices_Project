@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/nishantt3112/ProdGrade_CICD_DevSecOps_Microservices_Project.git
     targetRevision: HEAD
-    path: kustom/base/kustomization.yaml
+    path: kustom/base
 
   destination:
     server: https://kubernetes.default.svc
