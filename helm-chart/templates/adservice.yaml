@@ -57,7 +57,7 @@ spec:
 
       containers:
         - name: server
-          image: {{ .Values.images.adservice.repository }}:{{ .Values.images.adservice.digest | default .Chart.AppVersion }}
+          image: {{ .Values.images.adservice.repository }}@{{ .Values.images.adservice.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 9555
