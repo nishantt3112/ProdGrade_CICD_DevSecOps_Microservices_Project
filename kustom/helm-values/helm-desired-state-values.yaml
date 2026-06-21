@@ -25,8 +25,8 @@ images:
     digest: sha256:59087efced2b130380a5c92ebf9d609e65f09362441977746962605ba1e6cfaa
   cartservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice
-    tag: 13f62ec-94
-    digest: sha256:63cc8f0c7c2e09e6364cadaa9d4cfc7e41daf3115bea9d34a92d8a6feaeed46e
+    tag: 0d0608c-136
+    digest: sha256:bb568bf85ef1e5ef4c1c67feae27920a38f6d8c35549b743fc356e485714d296
   checkoutservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice
     tag: e3db285-102
