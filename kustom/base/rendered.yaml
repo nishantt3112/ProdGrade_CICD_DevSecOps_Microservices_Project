@@ -661,7 +661,7 @@ spec:
               drop:
                 - ALL
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice@sha256:a0e8505e69c0b0e3d9b1b6df0f253e52476366efd52904197827e14f8cff13e3
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice@sha256:0d3fb052ad233df2c5ffa03b757bd465680833260fa0bdcf377ee61e2c671d70
 
           ports:
             - name: grpc

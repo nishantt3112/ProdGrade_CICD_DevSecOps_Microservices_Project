@@ -33,8 +33,8 @@ images:
     digest: sha256:1d193a9b925600fa369fefbfc7fdca1ea3ba01e452a76f6851cf6913f872b27c
   currencyservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice
-    tag: d4f5971-98
-    digest: sha256:a0e8505e69c0b0e3d9b1b6df0f253e52476366efd52904197827e14f8cff13e3
+    tag: ad596d7-140
+    digest: sha256:0d3fb052ad233df2c5ffa03b757bd465680833260fa0bdcf377ee61e2c671d70
   emailservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice
     tag: 8c8f9b0-104
