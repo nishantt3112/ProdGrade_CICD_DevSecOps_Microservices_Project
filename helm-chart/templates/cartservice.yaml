@@ -13,7 +13,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.cartService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
   {{- with .Values.serviceAccounts.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -25,7 +25,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.cartService.name }}
-  namespace: {{ .Release.Namespace }}
+  #namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.cartService.name }}
 spec:
@@ -77,7 +77,7 @@ spec:
 
       containers:
         - name: server
-          image: {{ .Values.images.cartservice.repository }}:{{ .Values.images.cartservice.digest | default .Chart.AppVersion }}
+          image: {{ .Values.images.cartservice.repository }}@{{ .Values.images.cartservice.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 7070
@@ -109,7 +109,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.cartService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.cartService.name }}
 
@@ -129,7 +129,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: {{ .Values.cartService.name }}
-  namespace: {{ .Release.Namespace }}
+  #namespace: {{ .Release.Namespace }}
 
 spec:
   podSelector:
@@ -162,7 +162,7 @@ apiVersion: networking.istio.io/v1beta1
 kind: Sidecar
 metadata:
   name: {{ .Values.cartService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   workloadSelector:
@@ -191,7 +191,7 @@ apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: {{ .Values.cartService.name }}
-  namespace: {{ .Release.Namespace }}
+  #namespace: {{ .Release.Namespace }}
 
 spec:
   selector:
@@ -227,14 +227,14 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.cartDatabase.inClusterRedis.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.cartDatabase.inClusterRedis.name }}
-  namespace: {{ .Release.Namespace }}
+  #namespace: {{ .Release.Namespace }}
 
 spec:
   selector:
@@ -292,7 +292,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.cartDatabase.inClusterRedis.name }}
-  namespace: {{ .Release.Namespace }}
+  #namespace: {{ .Release.Namespace }}
 
 spec:
   selector:
@@ -310,7 +310,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.cartDatabase.externalRedisTlsOrigination.name }}
-  namespace: {{ .Release.Namespace }}
+  #namespace: {{ .Release.Namespace }}
 
 data:
   {{ .Values.cartDatabase.externalRedisTlsOrigination.name }}.pem: {{ .Values.cartDatabase.externalRedisTlsOrigination.certificate | b64enc | quote }}
@@ -320,7 +320,7 @@ apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
   name: {{ .Values.cartDatabase.externalRedisTlsOrigination.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   hosts:

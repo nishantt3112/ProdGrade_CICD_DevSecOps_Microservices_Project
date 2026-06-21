@@ -5,7 +5,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.recommendationService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
   {{- if not .Values.serviceAccounts.annotationsOnlyForCartservice }}
   {{- with .Values.serviceAccounts.annotations }}
@@ -20,7 +20,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.recommendationService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.recommendationService.name }}
 
@@ -64,7 +64,7 @@ spec:
 
       containers:
         - name: server
-          image: {{ .Values.images.recommendationservice.repository }}:{{ .Values.images.recommendationservice.digest | default .Chart.AppVersion }}
+          image: {{ .Values.images.recommendationservice.repository }}@{{ .Values.images.recommendationservice.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 8080
@@ -112,7 +112,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.recommendationService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.recommendationService.name }}
 
@@ -132,7 +132,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: {{ .Values.recommendationService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   podSelector:
@@ -162,7 +162,7 @@ apiVersion: networking.istio.io/v1beta1
 kind: Sidecar
 metadata:
   name: {{ .Values.recommendationService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   workloadSelector:
@@ -185,7 +185,7 @@ apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: {{ .Values.recommendationService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   selector:

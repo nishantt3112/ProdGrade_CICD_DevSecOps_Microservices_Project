@@ -1,38 +1,38 @@
 
 adService:
-  replicas: 5
+  replicas: 2
 
 cartService:
-  replicas: 5
+  replicas: 2
 
 checkoutService:
-  replicas: 5
+  replicas: 2
 
 currencyService:
-  replicas: 5
+  replicas: 2
 
 emailService:
-  replicas: 5
+  replicas: 2
 
 frontend:
   replicas: 5
 
 loadGenerator:
-  replicas: 5
+  replicas: 3
 
 paymentService:
-  replicas: 5
+  replicas: 2
 
 productCatalogService:
-  replicas: 5
+  replicas: 2
 
 
 recommendationService:
-  replicas: 5
+  replicas: 2
 
 
 shippingService:
-  replicas: 5
+  replicas: 2
 
 
 cartDatabase:

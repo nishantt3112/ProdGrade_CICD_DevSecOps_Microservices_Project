@@ -13,7 +13,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.checkoutService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
   {{- if not .Values.serviceAccounts.annotationsOnlyForCartservice }}
   {{- with .Values.serviceAccounts.annotations }}
@@ -28,7 +28,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.checkoutService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.checkoutService.name }}
 
@@ -68,7 +68,7 @@ spec:
 
       containers:
         - name: server
-          image: {{ .Values.images.checkoutservice.repository }}:{{ .Values.images.checkoutservice.digest | default .Chart.AppVersion }}
+          image: {{ .Values.images.checkoutservice.repository }}@{{ .Values.images.checkoutservice.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 5050
@@ -129,7 +129,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.checkoutService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.checkoutService.name }}
 
@@ -149,7 +149,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: {{ .Values.checkoutService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   podSelector:
@@ -179,7 +179,7 @@ apiVersion: networking.istio.io/v1beta1
 kind: Sidecar
 metadata:
   name: {{ .Values.checkoutService.name }}
-  namespace: {{ .Release.Namespace }}
+  #namespace: {{ .Release.Namespace }}
 
 spec:
   workloadSelector:
@@ -207,7 +207,7 @@ apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: {{ .Values.checkoutService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   selector:

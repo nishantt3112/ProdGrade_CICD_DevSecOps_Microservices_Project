@@ -19,7 +19,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.currencyService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
   {{- if not .Values.serviceAccounts.annotationsOnlyForCartservice }}
   {{- with .Values.serviceAccounts.annotations }}
   annotations:
@@ -33,7 +33,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.currencyService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.currencyService.name }}
 
@@ -85,7 +85,7 @@ spec:
               drop:
                 - ALL
 
-          image: {{ .Values.images.currencyservice.repository }}:{{ .Values.images.currencyservice.digest | default .Chart.AppVersion }}
+          image: {{ .Values.images.currencyservice.repository }}@{{ .Values.images.currencyservice.digest | default .Chart.AppVersion }}
 
           ports:
             - name: grpc
@@ -128,7 +128,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.currencyService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.currencyService.name }}
 
@@ -148,7 +148,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: {{ .Values.currencyService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   podSelector:
@@ -181,7 +181,7 @@ apiVersion: networking.istio.io/v1beta1
 kind: Sidecar
 metadata:
   name: {{ .Values.currencyService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   workloadSelector:
@@ -202,7 +202,7 @@ apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: {{ .Values.currencyService.name }}
-  namespace: {{ .Release.Namespace }}
+ # namespace: {{ .Release.Namespace }}
 
 spec:
   selector:
