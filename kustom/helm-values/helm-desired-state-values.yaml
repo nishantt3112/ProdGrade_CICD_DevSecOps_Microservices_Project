@@ -21,8 +21,8 @@ images:
     # repository: 071882750948.dkr.ecr.us-east-2.amazonaws.com/11_microservices_demo/adservice
     # Overrides the image tag whose default is the chart appVersion.
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/adservice
-    tag: 6f22e3b-123
-    digest: sha256:6e96bdbd73b1ffcf657e76a71e5471459d229e6147a8d76e1787eb7ec29b4060
+    tag: f1069a2-134
+    digest: sha256:59087efced2b130380a5c92ebf9d609e65f09362441977746962605ba1e6cfaa
   cartservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice
     tag: 13f62ec-94

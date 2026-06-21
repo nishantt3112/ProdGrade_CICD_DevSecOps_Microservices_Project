@@ -4,7 +4,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: adservice
-  namespace: default
+  namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/cartservice.yaml
 # Copyright 2024 Google LLC
@@ -18,14 +18,14 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: cartservice
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/cartservice.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: redis-cart
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/checkoutservice.yaml
 # Copyright 2024 Google LLC
@@ -39,7 +39,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: checkoutservice
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/currencyservice.yaml
 # Copyright 2024 Google LLC
@@ -59,63 +59,61 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: currencyservice
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/emailservice.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: emailservice
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/frontend.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: frontend
-  namespace: default
 ---
 # Source: onlineboutique/templates/loadgenerator.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: loadgenerator
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/paymentservice.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: paymentservice
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/productcatalogservice.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: productcatalogservice
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/recommendationservice.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: recommendationservice
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/shippingservice.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: shippingservice
-  namespace: default
+ # namespace: dev-boutique-app
 ---
 # Source: onlineboutique/templates/adservice.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: adservice
-  namespace: default
 spec:
   type: ClusterIP
   selector:
@@ -130,7 +128,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cartservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: cartservice
 
@@ -149,7 +147,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis-cart
-  namespace: default
+  #namespace: dev-boutique-app
 
 spec:
   selector:
@@ -165,7 +163,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: checkoutservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: checkoutservice
 
@@ -184,7 +182,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: currencyservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: currencyservice
 
@@ -203,7 +201,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: emailservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: emailservice
 
@@ -223,7 +221,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend-stable
-  namespace: default
   labels:
     app: frontend
 
@@ -242,7 +239,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend-canary
-  namespace: default
   labels:
     app: frontend
 
@@ -261,7 +257,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loadgenerator
-  namespace: default
+  #namespace: dev-boutique-app
   labels:
     app: loadgenerator
 
@@ -279,7 +275,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: paymentservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: paymentservice
 
@@ -298,7 +294,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: productcatalogservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: productcatalogservice
 
@@ -317,7 +313,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: recommendationservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: recommendationservice
 
@@ -336,7 +332,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: shippingservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: shippingservice
 
@@ -355,11 +351,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: adservice
-  namespace: default
+  namespace: dev-boutique-app
   labels:
     app: adservice
 spec:
-  replicas: 5
+  replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -386,7 +382,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/adservice@sha256:6e96bdbd73b1ffcf657e76a71e5471459d229e6147a8d76e1787eb7ec29b4060
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/adservice@sha256:59087efced2b130380a5c92ebf9d609e65f09362441977746962605ba1e6cfaa
 
           ports:
             - containerPort: 9555
@@ -428,11 +424,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cartservice
-  namespace: default
+  #namespace: dev-boutique-app
   labels:
     app: cartservice
 spec:
-  replicas: 5
+  replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -461,7 +457,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice:sha256:63cc8f0c7c2e09e6364cadaa9d4cfc7e41daf3115bea9d34a92d8a6feaeed46e
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/cartservice@sha256:63cc8f0c7c2e09e6364cadaa9d4cfc7e41daf3115bea9d34a92d8a6feaeed46e
 
           ports:
             - containerPort: 7070
@@ -494,7 +490,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis-cart
-  namespace: default
+  #namespace: dev-boutique-app
 
 spec:
   selector:
@@ -544,13 +540,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: checkoutservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: checkoutservice
 
 spec:
   
-  replicas: 5
+  replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -576,7 +572,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice:sha256:64223ba723bcb7932852c4a607b58f07b17ea7fd00be3eff1a628b195d20f4a7
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/checkoutservice@sha256:64223ba723bcb7932852c4a607b58f07b17ea7fd00be3eff1a628b195d20f4a7
 
           ports:
             - containerPort: 5050
@@ -624,12 +620,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: currencyservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: currencyservice
 
 spec:
-  replicas: 5
+  replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -665,7 +661,7 @@ spec:
               drop:
                 - ALL
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice:sha256:a0e8505e69c0b0e3d9b1b6df0f253e52476366efd52904197827e14f8cff13e3
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/currencyservice@sha256:a0e8505e69c0b0e3d9b1b6df0f253e52476366efd52904197827e14f8cff13e3
 
           ports:
             - name: grpc
@@ -698,13 +694,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: emailservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: emailservice
 
 spec:
 
-  replicas: 5
+  replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -731,7 +727,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice:sha256:219f73a5decb0b2ffc8bbe72c5a2b916b0a48f235264d0b3e9d928559c1e7083
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice@sha256:219f73a5decb0b2ffc8bbe72c5a2b916b0a48f235264d0b3e9d928559c1e7083
 
           ports:
             - containerPort: 8080
@@ -761,12 +757,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: loadgenerator
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: loadgenerator
 
 spec:
-  replicas: 5
+  replicas: 2
   selector:
     matchLabels:
       app: loadgenerator
@@ -830,7 +826,7 @@ spec:
 
       containers:
         - name: main
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice:sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice@sha256:b2210053e2d3babf643249dcf013bdf2bef27b5240cbe558ac382c7b85299abf
 
           securityContext:
             allowPrivilegeEscalation: false
@@ -863,12 +859,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: paymentservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: paymentservice
 
 spec:
-  replicas: 5
+  replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -896,7 +892,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice:sha256:9adb57a41b3c8d6eb54d612f02ab190de5dee7731ceca4804b782815cf2fcf06
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice@sha256:9adb57a41b3c8d6eb54d612f02ab190de5dee7731ceca4804b782815cf2fcf06
 
           ports:
             - containerPort: 50051
@@ -928,12 +924,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: productcatalogservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: productcatalogservice
 
 spec:
-  replicas: 5
+  replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -960,7 +956,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice:sha256:a129db60e0d1c9d231f6b4cc701ffcdc1ba0d87177e2e987160060dd5dec90f7
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice@sha256:a129db60e0d1c9d231f6b4cc701ffcdc1ba0d87177e2e987160060dd5dec90f7
 
           ports:
             - containerPort: 3550
@@ -995,12 +991,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: recommendationservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: recommendationservice
 
 spec:
-  replicas: 5
+  replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -1027,7 +1023,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/recommendationservice:sha256:9d0e818cc7ccc9a22c1cdb5cf1c96e64cfd312fa3f28db9f64af0303e602a306
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/recommendationservice@sha256:9d0e818cc7ccc9a22c1cdb5cf1c96e64cfd312fa3f28db9f64af0303e602a306
 
           ports:
             - containerPort: 8080
@@ -1064,12 +1060,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: shippingservice
-  namespace: default
+ # namespace: dev-boutique-app
   labels:
     app: shippingservice
 
 spec:
-  replicas: 5
+  replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -1096,7 +1092,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice:sha256:c38e5112de10350ad554922ba4f2f335f2aa03b025dfcd4b05a969de6318df3b
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice@sha256:c38e5112de10350ad554922ba4f2f335f2aa03b025dfcd4b05a969de6318df3b
 
           ports:
             - containerPort: 50051
@@ -1139,12 +1135,47 @@ spec:
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
+# Source: onlineboutique/templates/httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: http-app-route
+  #namespace: dev-boutique-app
+spec:
+  hostnames:
+    - longhauler.shop #"app.longhauler.shop"
+    - app.longhauler.shop
+  parentRefs:
+  # - group: gateway.networking.k8s.io
+  #   namespace: default
+  #   kind: Gateway
+  #   name: app-alb-gateway
+  #   sectionName: http
+  - group: gateway.networking.k8s.io
+    namespace: default
+    kind: Gateway
+    name: app-alb-gateway
+    sectionName: https
+  rules:
+    - matches:  
+      - path: 
+          type: PathPrefix
+          value: /
+      backendRefs:
+        - name: frontend-stable
+          kind: Service
+          port: 80
+          weight: 100
+        - name: frontend-canary
+          kind: Service
+          port: 80
+          weight: 0
+---
 # Source: onlineboutique/templates/frontend.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: frontend
-  namespace: default
   labels:
     app: frontend
 
@@ -1164,7 +1195,6 @@ spec:
           argoproj-labs/gatewayAPI:
             httpRoutes:
               - name: http-app-route
-                namespace: boutique-app
       maxSurge: 1
       maxUnavailable: 0
       steps:
@@ -1193,7 +1223,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend:sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:e0f65d66623d8105952b07a9aacb6520e7771ffa0f10829a7f049ddcf8ec650c
 
           ports:
             - containerPort: 8080
@@ -1263,3 +1293,29 @@ spec:
             requests:
               cpu: 100m
               memory: 64Mi
+---
+# Source: onlineboutique/templates/targetgroupconfiguration-canary.yaml
+apiVersion: gateway.k8s.aws/v1beta1
+kind: TargetGroupConfiguration
+metadata:
+  #name: app-tg-config
+  name: frontend-canary-tgc
+  #namespace: boutique-app
+spec:
+  targetReference:
+    name: frontend-canary
+  defaultConfiguration:
+    targetType: ip
+---
+# Source: onlineboutique/templates/targetgroupconfiguration-stable.yaml
+apiVersion: gateway.k8s.aws/v1beta1
+kind: TargetGroupConfiguration
+metadata:
+  #name: app-tg-config
+  name: frontend-stable-tgc
+  #namespace: boutique-app
+spec:
+  targetReference:
+    name: frontend-stable
+  defaultConfiguration:
+    targetType: ip
