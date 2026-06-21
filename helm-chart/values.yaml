@@ -43,15 +43,18 @@ images:
     tag: 15e53bc-78
     digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
 
-  frontend:
-    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend
-    tag: 96f1318-96
-    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+  # f
+  frontendservice:
+    tag: 03c96db-106
+    digest: sha256:e0f65d66623d8105952b07a9aacb6520e7771ffa0f10829a7f049ddcf8ec650c
+  loadgeneratorservice:
+    tag: 8d276b8-109
+    digest: sha256:b2210053e2d3babf643249dcf013bdf2bef27b5240cbe558ac382c7b85299abf
   
-  loadgenerator:
-    repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice
-    tag: b0e1f94-82
-    digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
+  # loadgenerator:
+  #   repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice
+  #   tag: b0e1f94-82
+  #   digest: sha256:28abb1d08305690332333d454de44f449e9dd3b0bf66cb4c920c078d6bb7312d
 
   paymentservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice
