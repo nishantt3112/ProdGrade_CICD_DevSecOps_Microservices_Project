@@ -9,11 +9,11 @@ spec:
   source:
     repoURL: https://github.com/nishantt3112/ProdGrade_CICD_DevSecOps_Microservices_Project.git
     targetRevision: HEAD
-    path: kustom/base
+    path: kustom/overlays/dev
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: boutique-app
+    namespace: dev-boutique-app
 
   syncPolicy:
     automated:
