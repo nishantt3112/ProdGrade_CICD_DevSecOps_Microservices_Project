@@ -37,8 +37,8 @@ images:
     digest: sha256:0d3fb052ad233df2c5ffa03b757bd465680833260fa0bdcf377ee61e2c671d70
   emailservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/emailservice
-    tag: 8c8f9b0-104
-    digest: sha256:219f73a5decb0b2ffc8bbe72c5a2b916b0a48f235264d0b3e9d928559c1e7083
+    tag: dede1c7-142
+    digest: sha256:437cfc8c58d5311cf60e09e96825a2886a1e92b42336f4bc0d2ede1bd2127291
   paymentservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice
     tag: c86f163-111
