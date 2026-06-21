@@ -104,7 +104,7 @@ spec:
 
       containers:
         - name: main
-          image: {{ .Values.images.loadgenerator.repository }}@{{ .Values.images.loadgenerator.digest | default .Chart.AppVersion }}
+          image: {{ .Values.images.loadgeneratorservice.repository }}@{{ .Values.images.loadgeneratorservice.digest | default .Chart.AppVersion }}
 
           securityContext:
             allowPrivilegeEscalation: false

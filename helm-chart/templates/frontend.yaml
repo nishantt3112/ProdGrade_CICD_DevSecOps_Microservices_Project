@@ -81,7 +81,7 @@ spec:
       containers:
         - name: server
 
-          image: {{ .Values.images.frontend.repository }}@{{ .Values.images.frontend.digest | default .Chart.AppVersion }}
+          image: {{ .Values.images.frontendservice.repository }}@{{ .Values.images.frontendservice.digest | default .Chart.AppVersion }}
 
           ports:
             - containerPort: 8080
