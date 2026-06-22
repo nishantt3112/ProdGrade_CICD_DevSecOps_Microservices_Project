@@ -5,7 +5,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   # name: {{ .Values.frontend.name }}
-  name: dev-frontend
+  name: frontend
 
   {{- if not .Values.serviceAccounts.annotationsOnlyForCartservice }}
   {{- with .Values.serviceAccounts.annotations }}
@@ -59,7 +59,7 @@ spec:
     spec:
       {{- if .Values.serviceAccounts.create }}
       #serviceAccountName: {{ .Values.frontend.name }}
-      serviceAccountName: dev-frontend
+      serviceAccountName: frontend
       {{- else }}
       serviceAccountName: default
       {{- end }}
