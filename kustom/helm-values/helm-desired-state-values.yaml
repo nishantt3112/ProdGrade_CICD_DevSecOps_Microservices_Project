@@ -59,8 +59,8 @@ images:
     tag: 5c53f62-172
     digest: sha256:bc2fb55daae4e387953e38802bf1324c7fdf059500893aef3bb8892e96043785
   loadgeneratorservice:
-    tag: fd7c857-146
-    digest: sha256:8dcc7a0f3ecb7541138396c4578c007c67b93c9b0f9d0b1e48d67ef7be4af368
+    tag: 06d8a3f-174
+    digest: sha256:e36a47bbb7f81bc6cf8483fa857471600148b87d8efa4ce4301f26d7d6da2bd7
 serviceAccounts:
   # Specifies whether service accounts should be created.
   create: true

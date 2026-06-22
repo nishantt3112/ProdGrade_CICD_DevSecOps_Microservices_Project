@@ -814,7 +814,9 @@ spec:
 
           env:
             - name: FRONTEND_ADDR
-              value: "frontend:80"
+              # value: "frontend:80"
+              value: "k8s-default-appalbga-ec67948688-1604537234.us-east-1.elb.amazonaws.com"
+
 
           securityContext:
             allowPrivilegeEscalation: false
@@ -826,7 +828,7 @@ spec:
 
       containers:
         - name: main
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice@sha256:8dcc7a0f3ecb7541138396c4578c007c67b93c9b0f9d0b1e48d67ef7be4af368
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice@sha256:e36a47bbb7f81bc6cf8483fa857471600148b87d8efa4ce4301f26d7d6da2bd7
 
           securityContext:
             allowPrivilegeEscalation: false
@@ -838,7 +840,8 @@ spec:
 
           env:
             - name: FRONTEND_ADDR
-              value: "frontend:80"
+              #value: "frontend:80"
+              value: "k8s-default-appalbga-ec67948688-1604537234.us-east-1.elb.amazonaws.com"
 
             - name: USERS
               value: "10"
