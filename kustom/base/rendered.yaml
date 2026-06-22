@@ -72,7 +72,6 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  # name: frontend
   name: frontend
 ---
 # Source: onlineboutique/templates/loadgenerator.yaml
@@ -1163,11 +1162,11 @@ spec:
           type: PathPrefix
           value: /
       backendRefs:
-        - name: dev-frontend-stable
+        - name: frontend-stable
           kind: Service
           port: 80
           weight: 100
-        - name: dev-frontend-canary
+        - name: frontend-canary
           kind: Service
           port: 80
           weight: 0
@@ -1214,8 +1213,8 @@ spec:
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
 
     spec:
-      #serviceAccountName: frontend
-      serviceAccountName: dev-frontend
+      serviceAccountName: frontend
+      # serviceAccountName: frontend
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -1225,7 +1224,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:8c14b3596e1402b4aeee8531e56dd2290c523e48d21c78f40a02d0fde4809140
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:28e20a5ed1c6e94c4119b7a20dc6495ddd3596a25c7981cf19060e6d9b597c52
 
           ports:
             - containerPort: 8080
@@ -1305,7 +1304,7 @@ metadata:
   #namespace: boutique-app
 spec:
   targetReference:
-    name: dev-frontend-canary
+    name: frontend-canary
   defaultConfiguration:
     targetType: ip
 ---
@@ -1318,6 +1317,6 @@ metadata:
   #namespace: boutique-app
 spec:
   targetReference:
-    name: dev-frontend-stable
+    name: frontend-stable
   defaultConfiguration:
     targetType: ip
