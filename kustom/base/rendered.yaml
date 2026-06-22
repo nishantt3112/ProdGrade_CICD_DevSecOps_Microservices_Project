@@ -1187,8 +1187,8 @@ spec:
       app: frontend
   strategy:
     canary:
-      stableService: dev-frontend-stable
-      canaryService: dev-frontend-canary
+      stableService: frontend-stable
+      canaryService: frontend-canary
 
       trafficRouting:
         plugins:
@@ -1224,7 +1224,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:28e20a5ed1c6e94c4119b7a20dc6495ddd3596a25c7981cf19060e6d9b597c52
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:bc2fb55daae4e387953e38802bf1324c7fdf059500893aef3bb8892e96043785
 
           ports:
             - containerPort: 8080
