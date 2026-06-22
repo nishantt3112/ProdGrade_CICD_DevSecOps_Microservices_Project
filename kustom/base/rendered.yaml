@@ -1223,7 +1223,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:a914b9bc06bba7888eef28f853b292da91ce0f432da611987a08c2e8b544576f
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:dac0ade041baba3dc12fe41047ec863ab6cb0fe6f4fff2a607db543193267f47
 
           ports:
             - containerPort: 8080
@@ -1303,7 +1303,7 @@ metadata:
   #namespace: boutique-app
 spec:
   targetReference:
-    name: frontend-canary
+    name: dev-frontend-canary
   defaultConfiguration:
     targetType: ip
 ---
@@ -1316,6 +1316,6 @@ metadata:
   #namespace: boutique-app
 spec:
   targetReference:
-    name: frontend-stable
+    name: dev-frontend-stable
   defaultConfiguration:
     targetType: ip
