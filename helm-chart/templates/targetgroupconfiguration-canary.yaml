@@ -6,6 +6,6 @@ metadata:
   #namespace: boutique-app
 spec:
   targetReference:
-    name: dev-frontend-canary
+    name: frontend-canary
   defaultConfiguration:
     targetType: ip
