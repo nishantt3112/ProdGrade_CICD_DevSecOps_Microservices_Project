@@ -1023,7 +1023,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/recommendationservice@sha256:9d0e818cc7ccc9a22c1cdb5cf1c96e64cfd312fa3f28db9f64af0303e602a306
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/recommendationservice@sha256:b7136ff71a9549bf35335c8bd8e275ebb369950b69396cc789ab25db6b7088b4
 
           ports:
             - containerPort: 8080
