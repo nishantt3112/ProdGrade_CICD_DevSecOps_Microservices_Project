@@ -1215,7 +1215,7 @@ spec:
 
     spec:
       #serviceAccountName: frontend
-      serviceAccountName: frontend
+      serviceAccountName: dev-frontend
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
