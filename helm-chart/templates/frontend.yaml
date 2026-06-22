@@ -30,8 +30,8 @@ spec:
       app: {{ .Values.frontend.name }}
   strategy:
     canary:
-      stableService: {{ .Values.frontend.name }}-stable
-      canaryService: {{ .Values.frontend.name }}-canary
+      stableService: dev-{{ .Values.frontend.name }}-stable
+      canaryService: dev-{{ .Values.frontend.name }}-canary
 
       trafficRouting:
         plugins:
