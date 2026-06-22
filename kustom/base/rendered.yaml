@@ -73,7 +73,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   # name: frontend
-  name: dev-frontend
+  name: frontend
 ---
 # Source: onlineboutique/templates/loadgenerator.yaml
 apiVersion: v1
@@ -1215,7 +1215,7 @@ spec:
 
     spec:
       #serviceAccountName: frontend
-      serviceAccountName: dev-frontend
+      serviceAccountName: frontend
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -1225,7 +1225,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:a00199271b1b8f157ca134caa3c2293f71e53ef0e617b68ec06660958791e956
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:8c14b3596e1402b4aeee8531e56dd2290c523e48d21c78f40a02d0fde4809140
 
           ports:
             - containerPort: 8080
