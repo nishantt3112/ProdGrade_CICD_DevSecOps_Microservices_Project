@@ -24,11 +24,11 @@ spec:
           type: PathPrefix
           value: /
       backendRefs:
-        - name: frontend-stable
+        - name: dev-frontend-stable
           kind: Service
           port: 80
           weight: 100
-        - name: frontend-canary
+        - name: dev-frontend-canary
           kind: Service
           port: 80
           weight: 0
