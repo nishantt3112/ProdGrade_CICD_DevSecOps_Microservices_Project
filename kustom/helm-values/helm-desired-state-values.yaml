@@ -53,8 +53,8 @@ images:
     digest: sha256:b7136ff71a9549bf35335c8bd8e275ebb369950b69396cc789ab25db6b7088b4
   shippingservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/shippingservice
-    tag: c36ec5b-117
-    digest: sha256:c38e5112de10350ad554922ba4f2f335f2aa03b025dfcd4b05a969de6318df3b
+    tag: 9616af0-154
+    digest: sha256:e321ab40a7d4931a6b0efdc20002b601cd68759aa66fb33b5dd62c765f1ce982
   frontendservice:
     tag: 5a737d8-144
     digest: sha256:a136e964b74929ec1acfe7429ec3983e34111249cfbf2f67195b428a83b6a023
