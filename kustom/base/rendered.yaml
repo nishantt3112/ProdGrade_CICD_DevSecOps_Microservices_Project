@@ -1163,11 +1163,11 @@ spec:
           type: PathPrefix
           value: /
       backendRefs:
-        - name: frontend-stable
+        - name: dev-frontend-stable
           kind: Service
           port: 80
           weight: 100
-        - name: frontend-canary
+        - name: dev-frontend-canary
           kind: Service
           port: 80
           weight: 0
@@ -1225,7 +1225,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:f24c96bcdd2aebaff8ba7003cfc34c5390a10339ba4137d33574acd5eaf85c56
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:a00199271b1b8f157ca134caa3c2293f71e53ef0e617b68ec06660958791e956
 
           ports:
             - containerPort: 8080

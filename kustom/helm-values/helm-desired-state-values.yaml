@@ -56,8 +56,8 @@ images:
     tag: 9616af0-154
     digest: sha256:e321ab40a7d4931a6b0efdc20002b601cd68759aa66fb33b5dd62c765f1ce982
   frontendservice:
-    tag: ee6e1d0-160
-    digest: sha256:f24c96bcdd2aebaff8ba7003cfc34c5390a10339ba4137d33574acd5eaf85c56
+    tag: 260f2ca-162
+    digest: sha256:a00199271b1b8f157ca134caa3c2293f71e53ef0e617b68ec06660958791e956
   loadgeneratorservice:
     tag: fd7c857-146
     digest: sha256:8dcc7a0f3ecb7541138396c4578c007c67b93c9b0f9d0b1e48d67ef7be4af368
