@@ -72,7 +72,8 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: frontend
+  # name: frontend
+  name: dev-frontend
 ---
 # Source: onlineboutique/templates/loadgenerator.yaml
 apiVersion: v1
@@ -1213,7 +1214,8 @@ spec:
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
 
     spec:
-      serviceAccountName: frontend
+      #serviceAccountName: frontend
+      serviceAccountName: dev-frontend
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -1223,7 +1225,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:dac0ade041baba3dc12fe41047ec863ab6cb0fe6f4fff2a607db543193267f47
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:f24c96bcdd2aebaff8ba7003cfc34c5390a10339ba4137d33574acd5eaf85c56
 
           ports:
             - containerPort: 8080
