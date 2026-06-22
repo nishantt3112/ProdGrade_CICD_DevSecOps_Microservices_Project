@@ -41,8 +41,8 @@ images:
     digest: sha256:437cfc8c58d5311cf60e09e96825a2886a1e92b42336f4bc0d2ede1bd2127291
   paymentservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice
-    tag: c86f163-111
-    digest: sha256:9adb57a41b3c8d6eb54d612f02ab190de5dee7731ceca4804b782815cf2fcf06
+    tag: a842031-148
+    digest: sha256:b617963afdc8597fe441885085d9fdd6d3a066c185bc02e04ed313d03852c4e1
   productcatalogservice:
     repository: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/productcatalogservice
     tag: 83490c6-113

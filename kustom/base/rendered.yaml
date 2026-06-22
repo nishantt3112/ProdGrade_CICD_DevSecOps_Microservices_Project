@@ -892,7 +892,7 @@ spec:
 
       containers:
         - name: server
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice@sha256:9adb57a41b3c8d6eb54d612f02ab190de5dee7731ceca4804b782815cf2fcf06
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/paymentservice@sha256:b617963afdc8597fe441885085d9fdd6d3a066c185bc02e04ed313d03852c4e1
 
           ports:
             - containerPort: 50051
