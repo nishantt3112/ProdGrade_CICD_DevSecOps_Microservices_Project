@@ -1196,8 +1196,10 @@ spec:
       trafficRouting:
         plugins:
           argoproj-labs/gatewayAPI:
+            namespace: boutique-app
             httpRoutes:
               - name: http-app-route
+      
       maxSurge: 1
       maxUnavailable: 0
       steps:
@@ -1227,7 +1229,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:d753e7c599ae015f07a7110dfd62ad91ae015304b32b6b986e3fe8296e5ac6b2
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:ccf750a5b5d1ed0fc10705060fa3a9f1a19a462bee08a890ff2247109afd3007
 
           ports:
             - containerPort: 8080
