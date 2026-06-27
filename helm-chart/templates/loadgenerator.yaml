@@ -119,7 +119,7 @@ spec:
           env:
             - name: FRONTEND_ADDR
               #value: "{{ .Values.frontend.name }}:80"
-              value: "k8s-default-appalbga-ec67948688-1604537234.us-east-1.elb.amazonaws.com"
+              value: "k8s-default-appalbga-5c7bc630d8-2069109784.us-east-1.elb.amazonaws.com"
 
             - name: USERS
               value: "10"
