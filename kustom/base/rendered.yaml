@@ -1229,7 +1229,7 @@ spec:
       containers:
         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:ccf750a5b5d1ed0fc10705060fa3a9f1a19a462bee08a890ff2247109afd3007
+          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:c46dff2408c6ae3addb8e66179b32dc6c6cd46450926e2dea1baa81cb51f15d3
 
           ports:
             - containerPort: 8080
