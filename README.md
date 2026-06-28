@@ -1,5 +1,3 @@
-# Production Grade DevOps Project
-
-## Architecture
+# Project Architecture
 
 ![Architecture](Ecom-App-Architectural-Diagram.png)
