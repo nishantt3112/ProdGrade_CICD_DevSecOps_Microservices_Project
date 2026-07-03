@@ -22,8 +22,17 @@ Online Boutique was chosen because it closely resembles a real-world e-commerce 
 - ✅ Runs on any CNCF-compliant Kubernetes cluster, including Amazon EKS
 - ✅ Ideal for implementing production-grade DevOps, GitOps, and Kubernetes best practices
 
-- The application consists of **11 independently deployable microservices** that communicate primarily using **gRPC**. Each service is responsible for a specific business capability.
-- This project extends the original Online Boutique application by building a complete production-ready platform around it using Infrastructure as Code, CI/CD, GitOps, security scanning, monitoring, logging, and automated deployments.
+### Why Microservices Instead of a Monolithic Application?
+
+A monolithic application contains all features in a single codebase and is deployed as one unit. Even a small change usually requires rebuilding and redeploying the entire application.
+
+In contrast, Online Boutique follows a microservices architecture where each business function (cart, payment, product catalog, recommendation, checkout, etc.) runs as an independent service. This allows teams to develop, deploy, scale, and update services independently, making the application easier to maintain and scale.
+
+### Stateless vs Stateful Services
+
+Most services in Online Boutique are **stateless**, meaning they do not store user data locally. Any replica of a service can handle incoming requests, making horizontal scaling simple.
+
+Some components are **stateful** because they store persistent data. For example, the shopping cart data is stored in Redis, allowing application Pods to restart or scale without losing user data.
 
 # 🏗️ Application Architecture
 
