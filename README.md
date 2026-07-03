@@ -66,6 +66,7 @@ The cloud-native platform is built around the following core capabilities:
 - Kubernetes orchestration with Amazon EKS
 - Service Discovery for inter-service communication
 - Horizontal Pod Auto Scaling
+- EKS Cluster Autoscaler
 - Infrastructure as Code using Terraform
 - GitOps-based continuous deployment using Argo CD
 - Progressive delivery with Argo Rollouts
@@ -144,6 +145,11 @@ This project demonstrates the implementation of a production-ready cloud native 
 - ECK-FileBeat
 - ECK-ElasticSearch
 - ECK-Kibana
+
+## Scaling 
+
+- Horizontal Pod Autoscaler
+- Cluster Autoscaler
 
 
 The application consists of **11 independently deployable microservices** that communicate primarily using **gRPC**. Each service is responsible for a specific business capability, making the application modular, scalable, and fault tolerant.
