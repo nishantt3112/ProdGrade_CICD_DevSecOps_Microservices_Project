@@ -38,6 +38,7 @@ The Online Boutique application is composed of **11 independently deployable mic
 ![Online Boutique Application Architecture](Application_architecture.png)
 
 
+
 # 🎯 Project Goals
 
 The primary objective of this project is to demonstrate how a real-world microservices application can be deployed and managed using production-grade cloud-native technologies and DevOps best practices.
@@ -110,6 +111,7 @@ The cloud-native platform is built around the following core capabilities:
                   ▼                           ▼
              Stable Pods               Canary Pods
 ```
+
 
 
 # 🚀 Production-Grade Features
