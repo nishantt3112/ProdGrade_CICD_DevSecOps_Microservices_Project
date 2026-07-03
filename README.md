@@ -26,7 +26,12 @@ This project extends the original Online Boutique application by building a comp
 
 # 🏗️ Application Architecture
 
-The Online Boutique application is composed of **11 independently deployable microservices** that communicate primarily using **gRPC**. The `frontend` service acts as the entry point for user requests, while the `checkout` service orchestrates the payment, shipping, and email services during order processing. This polyglot architecture is designed to demonstrate real-world cloud-native application patterns. :contentReference[oaicite:1]{index=1}
+The Online Boutique application is composed of **11 independently deployable microservices** that communicate primarily using **gRPC**.
+- The **Frontend** service is the main entry point of the application. Whenever a user opens the website, all requests first reach the Frontend service. It displays the web pages and communicates with other microservices to fetch the required information.
+- For example, it gets product details from the **Product Catalog Service**, stores the user's shopping cart using the **Cart Service**, displays product recommendations from the **Recommendation Service**, and shows advertisements using the **Ad Service**.
+- When the user places an order, the **Checkout Service** takes over the checkout process. It collects the items from the cart, calculates shipping charges, converts prices into the selected currency, processes the payment, arranges shipping, and finally asks the **Email Service** to send the order confirmation email.
+- Each microservice performs only one specific task. This makes the application easier to maintain, scale, and update because changes made to one service do not affect the others.
+- The **Cart Service** stores shopping cart data in **Redis**, while the **Load Generator** continuously sends requests to the application to simulate users and test how the application  behaves under traffic.
 
 ![Online Boutique Application Architecture](Application_architecture.png)
 
