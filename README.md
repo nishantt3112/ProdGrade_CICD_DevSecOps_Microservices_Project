@@ -10,7 +10,7 @@ The application used in this project is Google's Online Boutique, which consists
 
 The application is a web-based e-commerce app where users can browse items, add them to the cart, and purchase them.
 
-Online Boutique was chosen because it closely resembles a real-world e-commerce platform while remaining lightweight and easy to deploy on Kubernetes. It provides an excellent foundation for implementing production-grade infrastructure, GitOps workflows, security, observability, and progressive delivery strategies.
+Online Boutique was chosen because it closely resembles a real-world e-commerce platform while remaining lightweight and easy to deploy on Kubernetes.
 
 ### Why Online Boutique?
 
