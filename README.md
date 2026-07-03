@@ -152,19 +152,5 @@ This project demonstrates the implementation of a production-ready cloud native 
 - Cluster Autoscaler
 
 
-The application consists of **11 independently deployable microservices** that communicate primarily using **gRPC**. Each service is responsible for a specific business capability, making the application modular, scalable, and fault tolerant.
-
-### Core Microservices
-
-- Frontend
-- Product Catalog
-- Cart
-- Checkout
-- Currency
-- Payment
-- Shipping
-- Email
-- Recommendation
-- Ad Service
-- Load Generator
+The application consists of **11 independently deployable microservices** that communicate primarily using **gRPC**. Each service is responsible for a specific business capability.
 
