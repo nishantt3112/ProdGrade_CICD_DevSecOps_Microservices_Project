@@ -8,7 +8,7 @@ The application used in this project is Google's Online Boutique, which consists
 
 ## Why Online Boutique?
 
-This project uses **Online Boutique**, an open-source microservices application developed by Google Cloud, to demonstrate production-grade Kubernetes, GitOps, DevSecOps, and CI/CD practices.
+This project uses **Online Boutique**, an open-source microservices application developed by Google Cloud.
 
 Online Boutique was chosen because it closely resembles a real-world e-commerce platform while remaining lightweight and easy to deploy on Kubernetes. It provides an excellent foundation for implementing production-grade infrastructure, GitOps workflows, security, observability, and progressive delivery strategies.
 
