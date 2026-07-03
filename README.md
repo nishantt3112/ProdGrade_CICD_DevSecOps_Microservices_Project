@@ -24,6 +24,11 @@ Online Boutique was chosen because it closely resembles a real-world e-commerce 
 
 This project extends the original Online Boutique application by building a complete production-ready platform around it using Infrastructure as Code, CI/CD, GitOps, security scanning, monitoring, logging, and automated deployments.
 
+# 🏗️ Application Architecture
+
+The Online Boutique application is composed of **11 independently deployable microservices** that communicate primarily using **gRPC**. The `frontend` service acts as the entry point for user requests, while the `checkout` service orchestrates the payment, shipping, and email services during order processing. This polyglot architecture is designed to demonstrate real-world cloud-native application patterns. :contentReference[oaicite:1]{index=1}
+
+![Online Boutique Application Architecture](Application_architecture.png)
 
 
 # 🎯 Project Goals
