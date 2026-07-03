@@ -22,7 +22,8 @@ Online Boutique was chosen because it closely resembles a real-world e-commerce 
 - ✅ Runs on any CNCF-compliant Kubernetes cluster, including Amazon EKS
 - ✅ Ideal for implementing production-grade DevOps, GitOps, and Kubernetes best practices
 
-This project extends the original Online Boutique application by building a complete production-ready platform around it using Infrastructure as Code, CI/CD, GitOps, security scanning, monitoring, logging, and automated deployments.
+- The application consists of **11 independently deployable microservices** that communicate primarily using **gRPC**. Each service is responsible for a specific business capability.
+- This project extends the original Online Boutique application by building a complete production-ready platform around it using Infrastructure as Code, CI/CD, GitOps, security scanning, monitoring, logging, and automated deployments.
 
 # 🏗️ Application Architecture
 
@@ -114,18 +115,20 @@ The cloud-native platform is built around the following core capabilities:
 
 # 🚀 Production-Grade Features
 
-This project demonstrates the implementation of a production-ready cloud native platform using modern DevOps and GitOps practices.
-
 ## Infrastructure
 
 - Amazon EKS
+- AWS VPC
 - Terraform
 - AWS Load Balancer Controller
+- AWS Auto Scaling Groups
+- AWS Route 53
 - IAM Roles for Service Accounts (IRSA)
 
 ## CI/CD & GitOps
 
 - GitHub Actions
+- Jenkins
 - Argo CD
 - Argo Rollouts
 - Helm
@@ -133,6 +136,8 @@ This project demonstrates the implementation of a production-ready cloud native 
 
 ## Security
 
+- NAT Gateway
+- AWS Secrets Manager
 - Trivy
 - SonarQube
 - OWASP Dependency Check
@@ -152,5 +157,4 @@ This project demonstrates the implementation of a production-ready cloud native 
 - Cluster Autoscaler
 
 
-The application consists of **11 independently deployable microservices** that communicate primarily using **gRPC**. Each service is responsible for a specific business capability.
 
