@@ -67,42 +67,37 @@ The cloud-native platform is built around the following core capabilities:
 
 # 🔄 End-to-End Request Flow
 
+## 🔄 End-to-End Request Flow
 
-User Traffic
- │
- ▼
-AWS Application Load Balancer (ALB)
- │
- ▼
-Gateway API (Gateway)
- │
- ▼
-HTTPRoute
- │
- ▼
-Argo Rollouts
- │
- ├───────────────90%──────────────────► Stable Target Group
- │                                        │
- │                                        ▼
- │                               Frontend Stable Service
- │                                        │
- │                                        ▼
- │                                 Stable ReplicaSet
- │                                        │
- │                                        ▼
- │                                    Stable Pods
- │
- └───────────────10%──────────────────► Canary Target Group
-                                          │
-                                          ▼
-                                 Frontend Canary Service
-                                          │
-                                          ▼
-                                   Canary ReplicaSet
-                                          │
-                                          ▼
-                                      Canary Pods
+```text
+                           User Traffic
+                                │
+                                ▼
+               AWS Application Load Balancer (ALB)
+                                │
+                                ▼
+                     Gateway API (Gateway)
+                                │
+                                ▼
+                          HTTPRoute
+                                │
+                                ▼
+                     Argo Rollouts
+                                │
+                  ┌─────────────┴─────────────┐
+                  │                           │
+                  ▼                           ▼
+      Stable Target Group (90%)    Canary Target Group (10%)
+                  │                           │
+                  ▼                           ▼
+      Frontend Stable Service     Frontend Canary Service
+                  │                           │
+                  ▼                           ▼
+          Stable ReplicaSet         Canary ReplicaSet
+                  │                           │
+                  ▼                           ▼
+             Stable Pods               Canary Pods
+```
 
 
 # 🚀 Production-Grade Features
