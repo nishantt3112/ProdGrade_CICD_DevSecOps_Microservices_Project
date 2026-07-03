@@ -6,7 +6,7 @@ This project demonstrates how to build a production-grade cloud native microserv
 
 The application used in this project is Google's Online Boutique, which consists of multiple independently deployable microservices.
 
-## Why Online Boutique?
+## Microservices Application
 
 This project uses **Online Boutique**, an open-source microservices application developed by Google Cloud.
 
