@@ -2635,7 +2635,7 @@ server:
     # -- List of hostnames for the HTTPRoute
     # @default -- `[]` (See [values.yaml])
     hostnames:
-      - argocd.longhauler.shop
+      - argocd.haulerlong.sbs
     # -- HTTPRoute rules configuration
     # @default -- `[]` (See [values.yaml])
     rules:
