@@ -4,7 +4,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: adservice
-  namespace: dev-boutique-app
+  namespace: boutique-app
 ---
 # Source: onlineboutique/templates/cartservice.yaml
 # Copyright 2024 Google LLC
@@ -351,7 +351,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: adservice
-  namespace: dev-boutique-app
+  namespace: boutique-app
   labels:
     app: adservice
 spec:
@@ -815,7 +815,7 @@ spec:
           env:
             - name: FRONTEND_ADDR
               # value: "frontend:80"
-              value: "k8s-default-appalbga-ec67948688-1604537234.us-east-1.elb.amazonaws.com"
+              value: "k8s-default-appalbga-1bf2d580e5-101629329.us-east-1.elb.amazonaws.com"
 
 
           securityContext:
@@ -841,7 +841,7 @@ spec:
           env:
             - name: FRONTEND_ADDR
               #value: "frontend:80"
-              value: "k8s-default-appalbga-5c7bc630d8-2069109784.us-east-1.elb.amazonaws.com"
+              value: "k8s-default-appalbga-1bf2d580e5-101629329.us-east-1.elb.amazonaws.com"
 
             - name: USERS
               value: "10"
