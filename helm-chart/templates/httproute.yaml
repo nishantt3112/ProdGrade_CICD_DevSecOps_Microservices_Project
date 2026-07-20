@@ -5,8 +5,8 @@ metadata:
   #namespace: dev-boutique-app
 spec:
   hostnames:
-    - longhauler.shop #"app.longhauler.shop"
-    - app.longhauler.shop
+    - haulerlong.sbs #"app.longhauler.shop"
+    - app.haulerlong.sbs
   parentRefs:
   # - group: gateway.networking.k8s.io
   #   namespace: default
