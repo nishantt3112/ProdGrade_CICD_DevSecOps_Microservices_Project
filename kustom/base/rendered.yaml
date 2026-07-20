@@ -968,8 +968,8 @@ spec:
             - name: PORT
               value: "3550"
 
-            - name: EXTRA_LATENCY
-              value: 
+                #  - name: EXTRA_LATENCY
+                #    value: 
             - name: DISABLE_PROFILER
               value: "1"
 
@@ -1146,8 +1146,8 @@ metadata:
   #namespace: dev-boutique-app
 spec:
   hostnames:
-    - longhauler.shop #"app.longhauler.shop"
-    - app.longhauler.shop
+    - haulerlong.sbs #"app.longhauler.shop"
+    - app.haulerlong.sbs
   parentRefs:
   # - group: gateway.networking.k8s.io
   #   namespace: default
@@ -1155,7 +1155,7 @@ spec:
   #   name: app-alb-gateway
   #   sectionName: http
   - group: gateway.networking.k8s.io
-    namespace: default
+    #namespace: default
     kind: Gateway
     name: app-alb-gateway
     sectionName: https
