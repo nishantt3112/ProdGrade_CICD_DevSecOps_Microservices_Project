@@ -1175,153 +1175,153 @@ spec:
           weight: 0
 ---
 # Source: onlineboutique/templates/frontend.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: frontend
-  labels:
-    app: frontend
+# apiVersion: argoproj.io/v1alpha1
+# kind: Rollout
+# metadata:
+#   name: frontend
+#   labels:
+#     app: frontend
 
-spec:
-  replicas: 5
-  revisionHistoryLimit: 3
-  selector:
-    matchLabels:
-      app: frontend
-  strategy:
-    canary:
-      stableService: frontend-stable
-      canaryService: frontend-canary
+# spec:
+#   replicas: 5
+#   revisionHistoryLimit: 3
+#   selector:
+#     matchLabels:
+#       app: frontend
+#   strategy:
+#     canary:
+#       stableService: frontend-stable
+#       canaryService: frontend-canary
 
-      trafficRouting:
-        plugins:
-          argoproj-labs/gatewayAPI:
-            namespace: boutique-app
-            httpRoutes:
-              - name: http-app-route
+#       trafficRouting:
+#         plugins:
+#           argoproj-labs/gatewayAPI:
+#             namespace: boutique-app
+#             httpRoutes:
+#               - name: http-app-route
       
-      maxSurge: 1
-      maxUnavailable: 0
-      steps:
-        - setWeight: 20
-        - pause: 
-            duration: 60s
-        - setWeight: 50  
-        - pause:
-            duration: 60s
-        - setWeight: 100
-  template:
-    metadata:
-      labels:
-        app: frontend
-      annotations:
-        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+#       maxSurge: 1
+#       maxUnavailable: 0
+#       steps:
+#         - setWeight: 20
+#         - pause: 
+#             duration: 60s
+#         - setWeight: 50  
+#         - pause:
+#             duration: 60s
+#         - setWeight: 100
+#   template:
+#     metadata:
+#       labels:
+#         app: frontend
+#       annotations:
+#         sidecar.istio.io/rewriteAppHTTPProbers: "true"
 
-    spec:
-      serviceAccountName: frontend
-      # serviceAccountName: frontend
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
+#     spec:
+#       serviceAccountName: frontend
+#       # serviceAccountName: frontend
+#       securityContext:
+#         fsGroup: 1000
+#         runAsGroup: 1000
+#         runAsNonRoot: true
+#         runAsUser: 1000
 
-      containers:
-        - name: server
+#       containers:
+#         - name: server
 
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:c46dff2408c6ae3addb8e66179b32dc6c6cd46450926e2dea1baa81cb51f15d3
+#           image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/frontend@sha256:c46dff2408c6ae3addb8e66179b32dc6c6cd46450926e2dea1baa81cb51f15d3
 
-          ports:
-            - containerPort: 8080
+#           ports:
+#             - containerPort: 8080
 
-          env:
-            - name: PORT
-              value: "8080"
+#           env:
+#             - name: PORT
+#               value: "8080"
 
-            - name: PRODUCT_CATALOG_SERVICE_ADDR
-              value: "productcatalogservice:3550"
+#             - name: PRODUCT_CATALOG_SERVICE_ADDR
+#               value: "productcatalogservice:3550"
 
-            - name: CURRENCY_SERVICE_ADDR
-              value: "currencyservice:7000"
+#             - name: CURRENCY_SERVICE_ADDR
+#               value: "currencyservice:7000"
 
-            - name: CART_SERVICE_ADDR
-              value: "cartservice:7070"
+#             - name: CART_SERVICE_ADDR
+#               value: "cartservice:7070"
 
-            - name: RECOMMENDATION_SERVICE_ADDR
-              value: "recommendationservice:8080"
+#             - name: RECOMMENDATION_SERVICE_ADDR
+#               value: "recommendationservice:8080"
 
-            - name: SHIPPING_SERVICE_ADDR
-              value: "shippingservice:50051"
+#             - name: SHIPPING_SERVICE_ADDR
+#               value: "shippingservice:50051"
 
-            - name: CHECKOUT_SERVICE_ADDR
-              value: "checkoutservice:5050"
+#             - name: CHECKOUT_SERVICE_ADDR
+#               value: "checkoutservice:5050"
 
-            - name: AD_SERVICE_ADDR
-              value: "adservice:9555"
+#             - name: AD_SERVICE_ADDR
+#               value: "adservice:9555"
 
-            - name: SHOPPING_ASSISTANT_SERVICE_ADDR
-              value: "shoppingassistantservice:80"
+#             - name: SHOPPING_ASSISTANT_SERVICE_ADDR
+#               value: "shoppingassistantservice:80"
 
-            - name: ENV_PLATFORM
-              value: "aws"
+#             - name: ENV_PLATFORM
+#               value: "aws"
 
-            - name: CYMBAL_BRANDING
-              value: "false"
+#             - name: CYMBAL_BRANDING
+#               value: "false"
 
-            - name: ENABLE_ASSISTANT
-              value: "false"
+#             - name: ENABLE_ASSISTANT
+#               value: "false"
 
-            - name: ENABLE_SINGLE_SHARED_SESSION
-              value: "false"
+#             - name: ENABLE_SINGLE_SHARED_SESSION
+#               value: "false"
 
-          readinessProbe:
-            initialDelaySeconds: 10
-            httpGet:
-              path: "/_healthz"
-              port: 8080
-              httpHeaders:
-                - name: Cookie
-                  value: "shop_session-id=x-readiness-probe"
+#           readinessProbe:
+#             initialDelaySeconds: 10
+#             httpGet:
+#               path: "/_healthz"
+#               port: 8080
+#               httpHeaders:
+#                 - name: Cookie
+#                   value: "shop_session-id=x-readiness-probe"
 
-          livenessProbe:
-            initialDelaySeconds: 10
-            httpGet:
-              path: "/_healthz"
-              port: 8080
-              httpHeaders:
-                - name: Cookie
-                  value: "shop_session-id=x-liveness-probe"
+#           livenessProbe:
+#             initialDelaySeconds: 10
+#             httpGet:
+#               path: "/_healthz"
+#               port: 8080
+#               httpHeaders:
+#                 - name: Cookie
+#                   value: "shop_session-id=x-liveness-probe"
 
-          resources:
-            limits:
-              cpu: 200m
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              memory: 64Mi
----
-# Source: onlineboutique/templates/targetgroupconfiguration-canary.yaml
-apiVersion: gateway.k8s.aws/v1beta1
-kind: TargetGroupConfiguration
-metadata:
-  #name: app-tg-config
-  name: frontend-canary-tgc
-  #namespace: boutique-app
-spec:
-  targetReference:
-    name: frontend-canary
-  defaultConfiguration:
-    targetType: ip
----
-# Source: onlineboutique/templates/targetgroupconfiguration-stable.yaml
-apiVersion: gateway.k8s.aws/v1beta1
-kind: TargetGroupConfiguration
-metadata:
-  #name: app-tg-config
-  name: frontend-stable-tgc
-  #namespace: boutique-app
-spec:
-  targetReference:
-    name: frontend-stable
-  defaultConfiguration:
-    targetType: ip
+#           resources:
+#             limits:
+#               cpu: 200m
+#               memory: 128Mi
+#             requests:
+#               cpu: 100m
+#               memory: 64Mi
+# ---
+# # Source: onlineboutique/templates/targetgroupconfiguration-canary.yaml
+# apiVersion: gateway.k8s.aws/v1beta1
+# kind: TargetGroupConfiguration
+# metadata:
+#   #name: app-tg-config
+#   name: frontend-canary-tgc
+#   #namespace: boutique-app
+# spec:
+#   targetReference:
+#     name: frontend-canary
+#   defaultConfiguration:
+#     targetType: ip
+# ---
+# # Source: onlineboutique/templates/targetgroupconfiguration-stable.yaml
+# apiVersion: gateway.k8s.aws/v1beta1
+# kind: TargetGroupConfiguration
+# metadata:
+#   #name: app-tg-config
+#   name: frontend-stable-tgc
+#   #namespace: boutique-app
+# spec:
+#   targetReference:
+#     name: frontend-stable
+#   defaultConfiguration:
+#     targetType: ip
