@@ -751,111 +751,111 @@ spec:
             capabilities:
               drop:
                 - ALL
----
-# Source: onlineboutique/templates/loadgenerator.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: loadgenerator
- # namespace: dev-boutique-app
-  labels:
-    app: loadgenerator
+#---
+# # Source: onlineboutique/templates/loadgenerator.yaml
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: loadgenerator
+#  # namespace: dev-boutique-app
+#   labels:
+#     app: loadgenerator
 
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: loadgenerator
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: loadgenerator
 
-  template:
-    metadata:
-      labels:
-        app: loadgenerator
-      annotations:
-        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+#   template:
+#     metadata:
+#       labels:
+#         app: loadgenerator
+#       annotations:
+#         sidecar.istio.io/rewriteAppHTTPProbers: "true"
 
-    spec:
-      serviceAccountName: loadgenerator
+#     spec:
+#       serviceAccountName: loadgenerator
 
-      terminationGracePeriodSeconds: 5
-      restartPolicy: Always
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      initContainers:
-        - name: frontend-check
-          image: busybox:latest@sha256:e226d6308690dbe282443c8c7e57365c96b5228f0fe7f40731b5d84d37a06839
+#       terminationGracePeriodSeconds: 5
+#       restartPolicy: Always
+#       securityContext:
+#         fsGroup: 1000
+#         runAsGroup: 1000
+#         runAsNonRoot: true
+#         runAsUser: 1000
+#       initContainers:
+#         - name: frontend-check
+#           image: busybox:latest@sha256:e226d6308690dbe282443c8c7e57365c96b5228f0fe7f40731b5d84d37a06839
 
-          command:
-            - /bin/sh
-            - -exc
-            - |
-              MAX_RETRIES=12
-              RETRY_INTERVAL=10
+#           command:
+#             - /bin/sh
+#             - -exc
+#             - |
+#               MAX_RETRIES=12
+#               RETRY_INTERVAL=10
 
-              for i in $(seq 1 $MAX_RETRIES); do
-                echo "Attempt $i: Pinging frontend: ${FRONTEND_ADDR}..."
+#               for i in $(seq 1 $MAX_RETRIES); do
+#                 echo "Attempt $i: Pinging frontend: ${FRONTEND_ADDR}..."
 
-                STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
+#                 STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
 
-                if [ $STATUSCODE -eq 200 ]; then
-                  echo "Frontend is reachable."
-                  exit 0
-                fi
+#                 if [ $STATUSCODE -eq 200 ]; then
+#                   echo "Frontend is reachable."
+#                   exit 0
+#                 fi
 
-                echo "Error: Could not reach frontend - Status code: ${STATUSCODE}"
-                sleep $RETRY_INTERVAL
-              done
+#                 echo "Error: Could not reach frontend - Status code: ${STATUSCODE}"
+#                 sleep $RETRY_INTERVAL
+#               done
 
-              echo "Failed to reach frontend after $MAX_RETRIES attempts."
-              exit 1
+#               echo "Failed to reach frontend after $MAX_RETRIES attempts."
+#               exit 1
 
-          env:
-            - name: FRONTEND_ADDR
-              # value: "frontend:80"
-              value: "k8s-default-appalbga-b4275c9447-1774522016.us-east-1.elb.amazonaws.com"
+#           env:
+#             - name: FRONTEND_ADDR
+#               # value: "frontend:80"
+#               value: "k8s-default-appalbga-b4275c9447-1774522016.us-east-1.elb.amazonaws.com"
 
 
-          securityContext:
-            allowPrivilegeEscalation: false
-            privileged: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
+#           securityContext:
+#             allowPrivilegeEscalation: false
+#             privileged: false
+#             readOnlyRootFilesystem: true
+#             capabilities:
+#               drop:
+#                 - ALL
 
-      containers:
-        - name: main
-          image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice@sha256:e36a47bbb7f81bc6cf8483fa857471600148b87d8efa4ce4301f26d7d6da2bd7
+#       containers:
+#         - name: main
+#           image: 389770079035.dkr.ecr.us-east-1.amazonaws.com/11_microservices/loadgeneratorservice@sha256:e36a47bbb7f81bc6cf8483fa857471600148b87d8efa4ce4301f26d7d6da2bd7
 
-          securityContext:
-            allowPrivilegeEscalation: false
-            privileged: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
+#           securityContext:
+#             allowPrivilegeEscalation: false
+#             privileged: false
+#             readOnlyRootFilesystem: true
+#             capabilities:
+#               drop:
+#                 - ALL
 
-          env:
-            - name: FRONTEND_ADDR
-              #value: "frontend:80"
-              value: "k8s-default-appalbga-b4275c9447-1774522016.us-east-1.elb.amazonaws.com"
+#           env:
+#             - name: FRONTEND_ADDR
+#               #value: "frontend:80"
+#               value: "k8s-default-appalbga-b4275c9447-1774522016.us-east-1.elb.amazonaws.com"
 
-            - name: USERS
-              value: "10"
+#             - name: USERS
+#               value: "10"
 
-            - name: RATE
-              value: "1"
+#             - name: RATE
+#               value: "1"
 
-          resources:
-            limits:
-              cpu: 500m
-              memory: 512Mi
-            requests:
-              cpu: 300m
-              memory: 256Mi
+#           resources:
+#             limits:
+#               cpu: 500m
+#               memory: 512Mi
+#             requests:
+#               cpu: 300m
+#               memory: 256Mi
 ---
 # Source: onlineboutique/templates/paymentservice.yaml
 apiVersion: apps/v1
