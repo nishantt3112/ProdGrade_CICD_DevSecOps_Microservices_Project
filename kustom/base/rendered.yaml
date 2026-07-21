@@ -815,7 +815,7 @@ spec:
           env:
             - name: FRONTEND_ADDR
               # value: "frontend:80"
-              value: "k8s-default-appalbga-1bf2d580e5-101629329.us-east-1.elb.amazonaws.com"
+              value: "k8s-default-appalbga-b4275c9447-1774522016.us-east-1.elb.amazonaws.com"
 
 
           securityContext:
@@ -841,7 +841,7 @@ spec:
           env:
             - name: FRONTEND_ADDR
               #value: "frontend:80"
-              value: "k8s-default-appalbga-1bf2d580e5-101629329.us-east-1.elb.amazonaws.com"
+              value: "k8s-default-appalbga-b4275c9447-1774522016.us-east-1.elb.amazonaws.com"
 
             - name: USERS
               value: "10"
