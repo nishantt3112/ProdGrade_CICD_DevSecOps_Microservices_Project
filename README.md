@@ -165,5 +165,45 @@ The cloud-native platform is built around the following core capabilities:
 - Horizontal Pod Autoscaler
 - Cluster Autoscaler
 
+# Infrastructure Setup
+
+## Environment
+
+All infrastructure components are installed and managed from a Bastion Host.
+
+### Bastion Host
+
+The Bastion Host acts as the administration machine for the Kubernetes cluster. It has all the required CLI tools installed, including:
+
+- AWS CLI
+- kubectl
+- eksctl
+- Helm
+- Terraform
+- Git
+- Docker (optional)
+
+From this machine, all Kubernetes and AWS administrative operations are performed.
+
+---
+
+## Verify Connectivity
+
+Before starting the installation, verify that the Bastion Host can communicate with the EKS cluster.
+
+### Verify AWS Identity
+
+```bash
+aws sts get-caller-identity
+```
+
+### Verify Kubernetes Cluster Access
+
+```bash
+kubectl get nodes
+```
+
+Expected Output
+
 
 
