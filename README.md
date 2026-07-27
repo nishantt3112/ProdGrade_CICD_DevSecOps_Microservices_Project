@@ -582,5 +582,422 @@ You can also verify that an **Application Load Balancer (ALB)** has been created
 
 
 
+## Cluster Autoscaler
+
+Cluster Autoscaler automatically adjusts the number of worker nodes in an Amazon EKS cluster based on workload demand. When pods remain in the **Pending** state due to insufficient resources, it scales out the node group by increasing the desired capacity. Similarly, when nodes remain underutilized for a configurable period, it scales them back in to reduce infrastructure costs. On AWS, Cluster Autoscaler works by updating the desired capacity of the underlying EC2 Auto Scaling Groups associated with the EKS managed node groups.
+
+---
+
+### Official Documentation
+
+- https://docs.aws.amazon.com/eks/latest/best-practices/cas.html
+- https://artifacthub.io/packages/helm/cluster-autoscaler/cluster-autoscaler
+
+---
+
+## Prerequisites
+
+Before installing Cluster Autoscaler, ensure the following prerequisites are met.
+
+- Amazon EKS Cluster
+- Managed Node Groups
+- kubectl configured
+- Helm installed
+- IAM OIDC Provider
+- IAM Roles for Service Accounts (IRSA)
+
+---
+
+## Installation
+
+### Step 1 - Create IAM Service Account (IRSA)
+
+Create a Kubernetes ServiceAccount and associate it with the IAM policy required by Cluster Autoscaler.
+
+> **Note**
+>
+> The IAM Policy (`ClusterAutoscalerPolicy`) should already be created before executing this command.
+
+```bash
+eksctl create iamserviceaccount \
+    --cluster=<eks-cluster-name> \
+    --namespace=kube-system \
+    --name=aws-cluster-autoscaler-controller \
+    --attach-policy-arn=arn:aws:iam::<aws-accountID>:policy/ClusterAutoscalerPolicy \
+    --override-existing-serviceaccounts \
+    --region <aws-region-code> \
+    --approve
+```
+
+Verify the ServiceAccount.
+
+```bash
+kubectl get serviceaccount aws-cluster-autoscaler-controller -n kube-system
+NAME                                AGE
+aws-cluster-autoscaler-controller   14m
+```
+
+---
+
+### Step 2 - Add Helm Repository
+
+Add the official Cluster Autoscaler Helm repository.
+
+```bash
+helm repo add autoscaler https://kubernetes.github.io/autoscaler
+```
+
+Update the repository.
+
+```bash
+helm repo update
+```
+
+Verify.
+
+```bash
+helm repo list
+
+NAME                    URL                                               
+autoscaler              https://kubernetes.github.io/autoscaler     
+```
+
+---
+
+### Step 3 - Install Cluster Autoscaler
+
+Install Cluster Autoscaler using Helm.
+
+```bash
+helm upgrade -i cluster-autoscaler \
+autoscaler/cluster-autoscaler \
+-n kube-system \
+--set autoDiscovery.clusterName=<cluster-name> \
+--set awsRegion=<aws-region> \
+--set cloudProvider=aws \
+--set rbac.serviceAccount.create=false \
+--set rbac.serviceAccount.name=aws-cluster-autoscaler-controller
+```
+
+#### Parameter Description
+
+| Parameter | Description |
+|-----------|-------------|
+| autoDiscovery.clusterName | EKS Cluster Name used to discover node groups |
+| awsRegion | AWS Region |
+| cloudProvider | Cloud Provider (AWS) |
+| rbac.serviceAccount.create | Reuse the existing IRSA ServiceAccount |
+| rbac.serviceAccount.name | Existing ServiceAccount name |
+
+Cluster Autoscaler uses **Auto Discovery** to automatically detect the EKS managed node groups that belong to the specified cluster.
+
+---
+
+## Verify Installation
+
+Verify Pods.
+
+```bash
+kubectl get pods -n kube-system
+                                           
+NAME                                                         READY   STATUS             RESTARTS       AGE
+cluster-autoscaler-aws-cluster-autoscaler-5776758b45-tjmcz   1/1     Running            0              7m29s
+```
+
+View Controller Logs.
+
+```bash
+kubectl logs cluster-autoscaler-aws-cluster-autoscaler-5776758b45-tjmcz -n kube-system
+```
+
+---
+
+
+# ExternalDNS
+
+ExternalDNS is a Kubernetes controller that automatically creates, updates, and deletes DNS records in **Amazon Route53** based on Kubernetes resources such as **Service**, **Ingress**, and **Gateway API** resources. This eliminates the need to manually manage DNS records whenever applications are deployed or removed.
+
+---
+
+### Official Documentation
+
+- https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/aws.md#using-helm-with-oidc
+- https://kubernetes-sigs.github.io/external-dns/v0.13.1/tutorials/gateway-api/
+
+---
+
+## Authentication Methods
+
+Before ExternalDNS can update Route53 records, it needs AWS permissions. There are two supported authentication methods in Amazon EKS.
+
+### IAM Roles for Service Accounts (IRSA)
+
+IRSA allows a Kubernetes ServiceAccount to assume an IAM Role using the cluster's OIDC provider.
+
+**When to use IRSA**
+
+- Existing EKS clusters already configured with IRSA
+- Older EKS versions
+- Applications already using IRSA
+- Multi-account AssumeRole scenarios
+
+---
+
+### EKS Pod Identity
+
+EKS Pod Identity is the newer authentication mechanism introduced by AWS. Instead of configuring IAM Roles through an OIDC provider and ServiceAccount annotations, Amazon EKS manages the association between a Kubernetes ServiceAccount and an IAM Role.
+
+A component called the **EKS Pod Identity Agent** runs as a **DaemonSet** on every worker node. Whenever a pod starts, the Pod Identity Agent securely provides temporary AWS credentials to the pod based on its associated IAM Role. No ServiceAccount annotations are required. AWS recommends using **EKS Pod Identity** for new EKS clusters whenever possible.
+
+### Why Pod Identity instead of IRSA?
+
+| IRSA | Pod Identity |
+|------|--------------|
+| Requires OIDC Provider | No OIDC Provider required |
+| ServiceAccount annotation required | No annotation required |
+| One OIDC provider per cluster | Managed directly by Amazon EKS |
+| Uses STS AssumeRoleWithWebIdentity | Credentials injected by Pod Identity Agent |
+| Good for existing clusters | Recommended for new EKS clusters |
+
+---
+
+## Installing an Amazon EKS Managed Add-on
+
+Amazon EKS provides several **managed add-ons** such as VPC CNI, CoreDNS, kube-proxy, EBS CSI Driver, and EKS Pod Identity Agent. Before installing an add-on, it is recommended to check which versions are compatible with your Kubernetes cluster version.
+
+---
+
+### Step 1 - List Supported Add-on Versions
+
+Use the following command to return the list of all supported versions of the **EKS Pod Identity Agent** for specific Kubernetes **v1.3x** in the **<aws-region>** region.
+
+```bash
+aws eks describe-addon-versions \
+  --addon-name eks-pod-identity-agent \
+  --kubernetes-version <eks-version> \
+  --region <aws-region> \
+  --query "addons[].addonVersions[].addonVersion"
+```
+
+---
+
+### Step 2 - Install the Add-on
+
+Install the selected add-on version.
+
+```bash
+aws eks create-addon \
+  --cluster-name <cluster-name> \
+  --addon-name eks-pod-identity-agent \
+  --addon-version v1.x.x-eksbuild.x  \
+  --region <aws-region>
+```
+
+Alternatively, if you are using **eksctl**, you can install the add-on using:
+
+```bash
+eksctl create addon \
+  --cluster <cluster-name> \
+  --name eks-pod-identity-agent
+  --region <aws-region> \
+  --version v1.x.x-eksbuild.x 
+```
+
+---
+verify the running pods.
+
+```bash
+kubectl get pods -n kube-system | grep -i eks-pod-identity-agent
+eks-pod-identity-agent-l4vnw                                 1/1     Running            0               13m
+eks-pod-identity-agent-mffr7                                 1/1     Running            0               13m
+```
+
+---
+
+# External DNS Installation
+
+## Step 1 - Create IAM Policy
+
+Create a policy document.
+
+**policy.json**
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "route53:ChangeResourceRecordSets",
+        "route53:ListResourceRecordSets",
+        "route53:ListTagsForResources"
+      ],
+      "Resource": [
+        "arn:aws:route53:::hostedzone/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "route53:ListHostedZones"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
+```
+
+Create the IAM Policy.
+
+```bash
+aws iam create-policy \
+--policy-name AllowExternalDNSUpdates \
+--policy-document file://policy.json
+```
+
+Export the Policy ARN.
+
+```bash
+export POLICY_ARN=$(aws iam list-policies \
+ --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' \
+ --output text)
+```
+
+---
+
+## Step 2 - Create Namespace
+
+```bash
+kubectl create namespace external-dns
+```
+
+---
+
+## Step 3 - Create Pod Identity Association
+
+Associate the Kubernetes ServiceAccount with an IAM Role.
+
+```bash
+eksctl create podidentityassociation \
+  --cluster $EKS_CLUSTER_NAME \
+  --namespace external-dns \
+  --service-account-name external-dns \
+  --role-name external-dns-pod-identity-role \
+  --permission-policy-arns $POLICY_ARN
+```
+
+Verify
+
+```bash
+eksctl get podidentityassociation \
+--cluster $EKS_CLUSTER_NAME
+```
+
+---
+
+## Step 4 - Add Helm Repository
+
+```bash
+helm repo add external-dns \
+https://kubernetes-sigs.github.io/external-dns/
+
+helm repo update
+```
+---
+
+## Step 5 - Get Default Values
+
+```bash
+helm show values external-dns/external-dns \
+--version 1.20.0 \
+> external-dns-values-1.20.0.yaml
+```
+
+---
+
+## Step 6 - Configure Sources
+
+Edit the values file.
+
+```yaml
+sources:
+  - service
+  - ingress
+  - gateway-httproute
+```
+
+> **Note**
+>
+> If you only use **HTTPRoute** then installing the **Standard Gateway API CRDs** is sufficient because `HTTPRoute` is part of the Standard release channel.
+>
+> However, if you enable any of the following sources:
+>
+> ```yaml
+> gateway-tlsroute
+> gateway-tcproute
+> gateway-udproute
+> ```
+>
+> then the corresponding Gateway API CRDs **must also exist in the cluster**. `TCPRoute` and `UDPRoute` are currently available only in the **Experimental Gateway API** release channel, while `TLSRoute` support depends on the installed Gateway API CRD version. If these CRDs are not installed, ExternalDNS may fail to start or the Helm deployment may fail with errors indicating that the resource kinds cannot be found.
+>
+
+These sources allow ExternalDNS to monitor Kubernetes resources(services, ingress, gatewa-httproute) and automatically create Route53 DNS records.
+
+---
+
+## Step 7 - Upgrade Installation
+
+```bash
+helm upgrade -i external-dns \
+external-dns/external-dns \
+-f external-dns-values-1.20.0.yaml \
+-n external-dns \
+--version 1.20.0
+```
+
+---
+
+## Verify Installation
+
+Verify the Deployment.
+
+```bash
+kubectl get deployment \
+-n external-dns
+```
+
+Verify Pods.
+
+```bash
+kubectl get pods -n external-dns
+
+NAME                            READY   STATUS    RESTARTS   AGE
+external-dns-5fcc48d4f7-bx96c  1/1     Running   0          94s
+```
+
+View Logs.
+
+```bash
+kubectl logs external-dns-5fcc48d4f7-bx96c -n external-dns
+```
+
+---
+
+## Resources Created
+
+| Resource | Namespace |
+|-----------|-----------|
+| Namespace | external-dns |
+| Deployment | external-dns |
+| ServiceAccount | external-dns |
+| ClusterRole | Cluster Scope |
+| ClusterRoleBinding | Cluster Scope |
+| Pod Identity Association | Amazon EKS |
+
+---
+
 
 
