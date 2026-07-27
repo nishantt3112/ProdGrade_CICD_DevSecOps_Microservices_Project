@@ -679,15 +679,16 @@ autoscaler/cluster-autoscaler \
 --set rbac.serviceAccount.name=aws-cluster-autoscaler-controller
 ```
 
-#### Parameter Description
+## Resources Created
 
-| Parameter | Description |
-|-----------|-------------|
-| autoDiscovery.clusterName | EKS Cluster Name used to discover node groups |
-| awsRegion | AWS Region |
-| cloudProvider | Cloud Provider (AWS) |
-| rbac.serviceAccount.create | Reuse the existing IRSA ServiceAccount |
-| rbac.serviceAccount.name | Existing ServiceAccount name |
+| Resource | Namespace |
+|-----------|-----------|
+| Deployment | kube-system |
+| ServiceAccount | kube-system |
+| ClusterRole | Cluster Scope |
+| ClusterRoleBinding | Cluster Scope |
+| ConfigMap | kube-system |
+| Lease | kube-system |
 
 Cluster Autoscaler uses **Auto Discovery** to automatically detect the EKS managed node groups that belong to the specified cluster.
 
@@ -960,6 +961,20 @@ external-dns/external-dns \
 
 ---
 
+## Resources Created
+
+| Resource | Namespace |
+|-----------|-----------|
+| Namespace | external-dns |
+| Deployment | external-dns |
+| ServiceAccount | external-dns |
+| ClusterRole | Cluster Scope |
+| ClusterRoleBinding | Cluster Scope |
+
+| Pod Identity Association | Amazon EKS |
+
+---
+
 ## Verify Installation
 
 Verify the Deployment.
@@ -983,21 +998,6 @@ View Logs.
 ```bash
 kubectl logs external-dns-5fcc48d4f7-bx96c -n external-dns
 ```
-
----
-
-## Resources Created
-
-| Resource | Namespace |
-|-----------|-----------|
-| Namespace | external-dns |
-| Deployment | external-dns |
-| ServiceAccount | external-dns |
-| ClusterRole | Cluster Scope |
-| ClusterRoleBinding | Cluster Scope |
-| Pod Identity Association | Amazon EKS |
-
----
 
 ---
 
@@ -1146,3 +1146,328 @@ In other words,
 TargetGroupConfiguration defines **how the Target Group should be configured**, while TargetGroupBinding connects that Target Group to the backend Service.
 
 
+
+# ArgoCD Installation
+
+ArgoCD is a declarative GitOps continuous delivery tool for Kubernetes. It continuously monitors the desired state stored in a Git repository and automatically synchronizes the Kubernetes cluster whenever changes are detected. In this project, ArgoCD is used to deploy and manage all infrastructure components and application workloads using GitOps. It is exposed externally through **Gateway API**, while **ExternalDNS** automatically creates the corresponding Route53 DNS record.
+
+---
+
+### Official Documentation
+
+- https://artifacthub.io/packages/helm/argo/argo-cd
+
+---
+
+## Installation
+
+### Step 1 - Add Helm Repository
+
+```bash
+helm repo add argo https://argoproj.github.io/argo-helm
+
+helm repo update
+```
+
+---
+
+### Step 2 - Download Default Values
+
+```bash
+helm show values argo/argo-cd \
+--version 9.4.0 \
+> argocd-values-9.4.0.yaml
+```
+
+---
+
+### Step 3 - Modify the Values File
+
+#### Enable Insecure Mode
+
+Since TLS is terminated at the AWS Application Load Balancer, ArgoCD should run in **insecure mode** internally.
+
+```yaml
+configs:
+  params:
+    create: true
+    server.insecure: true
+```
+
+> **Note**
+>
+> The AWS Application Load Balancer is responsible for TLS termination using the ACM certificate configured on the Gateway. Therefore, ArgoCD serves plain HTTP traffic inside the cluster while HTTPS is handled at the load balancer.
+
+---
+
+> **Note**
+>
+> This project renders the Helm charts during the Jenkins CI pipeline using `helm template`. The generated Kubernetes manifests are committed to the GitOps repository, which is monitored by ArgoCD.
+>
+> Since ArgoCD receives pre-rendered manifests instead of Helm charts, it does **not** need to render Helm templates at runtime. Therefore, enabling:
+>
+> ```yaml
+> kustomize.buildOptions: "--enable-helm"
+> ```
+>
+> is **not required** in this architecture.
+>
+> This option is only necessary when ArgoCD is expected to render Helm charts through Kustomize during application synchronization. 
+
+#### Enable Helm Support in Kustomize
+
+Enable Helm support inside Kustomize.
+
+```yaml
+configs:
+  cm:
+    create: true
+    kustomize.buildOptions: "--enable-helm"   # Disabled in current project
+```
+
+> **Why is this required?**
+>
+> By default, ArgoCD disables Helm support inside Kustomize because it is considered an optional plugin. Since this project uses **Kustomize** together with **Helm Charts**, enabling `--enable-helm` allows ArgoCD to render Helm charts during the manifest generation process.
+
+---
+
+#### Configure HTTPRoute
+
+Enable Gateway API support for the ArgoCD Server.
+
+```yaml
+server:
+  httproute:
+    enabled: true
+
+    parentRefs:
+      - name: app-alb-gateway
+        namespace: default
+        sectionName: https
+
+    hostnames:
+      - argocd.haulerlong.sbs
+
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+```
+
+---
+
+> **Why is this required?**
+>
+> Instead of creating an Ingress resource, the ArgoCD Helm chart creates a **Gateway API HTTPRoute** resource. The `parentRefs` field attaches this HTTPRoute to the existing Gateway (`app-alb-gateway`). The AWS Load Balancer Controller watches the HTTPRoute, configures a listener rule on the existing Application Load Balancer, creates the required Target Group, and routes traffic to the `argo-cd-argocd-server` Service. At the same time, ExternalDNS watches the `hostnames` field and automatically creates or updates the corresponding Route53 DNS record.
+
+### Step 4 - Install ArgoCD
+
+```bash
+helm install argo-cd argo/argo-cd -n argocd -f argocd-values-9.4.0.yaml --version 9.4.0 --create-namespace
+```
+---
+
+### Step 5 - Create TargetGroupConfiguration
+
+**target-grp-config.yaml**
+
+```yaml
+apiVersion: gateway.k8s.aws/v1beta1
+kind: TargetGroupConfiguration
+metadata:
+  name: argo-tg-config
+  namespace: argocd
+spec:
+  targetReference:
+    name: argo-cd-argocd-server
+  defaultConfiguration:
+    targetType: ip
+```
+
+Apply the manifest.
+
+```bash
+kubectl apply -f target-grp-config.yaml
+```
+
+---
+
+## Verify Installation
+
+Verify the Deployment.
+
+```bash
+kubectl get deployment -n argocd
+```
+
+Verify Pods.
+
+```bash
+kubectl get pods -n argocd
+```
+
+Verify HTTPRoute.
+
+```bash
+kubectl get httproute -n argocd
+```
+
+Verify Gateway attachment.
+
+```bash
+kubectl describe httproute -n argocd
+```
+
+---
+
+## Resources Created
+
+| Resource | Namespace |
+|-----------|-----------|
+| Namespace | argocd |
+| Deployment | argocd |
+| Service | argocd |
+| HTTPRoute | argocd |
+| TargetGroupConfiguration | argocd |
+
+---
+
+# How ArgoCD is Exposed Through Gateway API
+
+At this stage, the AWS Application Load Balancer has already been created by the **AWS Load Balancer Controller** using the **Gateway** and **LoadBalancerConfiguration** resources.
+
+When ArgoCD is installed, the Helm chart creates a new **HTTPRoute** resource.
+
+The HTTPRoute contains two important pieces of information:
+
+- Hostname
+- Backend Service
+
+Example:
+
+```yaml
+hostnames:
+  - argocd.devopsdock.site
+
+backendRefs:
+  - name: argo-cd-argocd-server
+    port: 80
+```
+
+The AWS Load Balancer Controller continuously watches Gateway API resources.
+
+When it detects this HTTPRoute, it automatically:
+
+1. Attaches the HTTPRoute to the existing Gateway.
+2. Creates a new Listener Rule on the existing AWS Application Load Balancer.
+3. Creates an AWS Target Group for the backend Service.
+4. Creates a TargetGroupBinding resource.
+5. Registers the backend Pods into the Target Group.
+
+At the same time, **ExternalDNS** watches the HTTPRoute.
+
+It detects the hostname:
+
+```yaml
+hostnames:
+  - argocd.haulerlong.sbs
+```
+
+and automatically creates a Route53 DNS record pointing to the existing AWS Application Load Balancer.
+
+As a result, users can access ArgoCD using:
+
+```text
+https://argocd.haulerlong.sbs
+```
+
+without manually creating any Route53 records.
+
+---
+
+## Traffic Flow
+
+```text
+                    Internet
+                        │
+                        │
+                  Route53 DNS
+                        │
+                        │
+             aargocd.haulerlong.sbs
+                        │
+                        ▼
+         AWS Application Load Balancer
+                        │
+                        │
+                Gateway (default)
+                        │
+                        │
+            HTTPRoute (argocd namespace)
+                        │
+                        │
+                  Backend Service
+               argo-cd-argocd-server
+                        │
+                        │
+                TargetGroupBinding
+                        │
+                        │
+                   ArgoCD Pods
+```
+
+---
+
+## How Multiple Applications Share the Same Gateway
+
+The cluster contains multiple applications running in different namespaces.
+
+| Namespace | Application |
+|-----------|-------------|
+| argocd | ArgoCD |
+| monitoring | Prometheus & Grafana |
+| logging | Elasticsearch, Kibana, Filebeat |
+| ecommerce-app | Ecommerce Microservices |
+| argo-rollouts | Argo Rollouts Dashboard |
+
+Each application creates its own **HTTPRoute** resource.
+
+Example:
+
+```text
+Gateway
+
+├── HTTPRoute (ArgoCD)
+│       └── argocd.haulerlong.sbs
+│
+├── HTTPRoute (Argo Rollouts)
+│       └── argorollouts.haulerlong.sbs
+│
+├── HTTPRoute (Grafana)
+│       └── grafana.haulerlong.sbs
+│
+├── HTTPRoute (Prometheus)
+│       └── prometheus.haulerlong.sbs
+│
+├── HTTPRoute (Kibana)
+│       └── kibana.haulerlong.sbs
+│
+└── HTTPRoute (Shop)
+        └── shop.haulerlong.sbs
+
+```
+
+Although these HTTPRoutes exist in different namespaces, they can all attach to the same Gateway because the Gateway listener is configured with:
+
+```yaml
+allowedRoutes:
+  namespaces:
+    from: All
+```
+
+This allows HTTPRoute resources from any namespace in the cluster to reference the Gateway.
+
+The AWS Load Balancer Controller watches all HTTPRoute resources across the cluster and automatically configures the existing Application Load Balancer with the appropriate listener rules and target groups for each application.
+
+---
