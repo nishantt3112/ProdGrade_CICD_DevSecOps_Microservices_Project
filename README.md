@@ -205,5 +205,396 @@ kubectl get nodes
 
 Expected Output
 
+```text
+NAME                             STATUS   ROLES    AGE   VERSION
+ip-192-168-27-57.ec2.internal    Ready    <none>   38m   v1.35.6-eks-bca9cf6
+ip-192-168-56-167.ec2.internal   Ready    <none>   38m   v1.35.6-eks-bca9cf6
+ip-192-168-9-145.ec2.internal    Ready    <none>   38m   v1.35.6-eks-bca9cf6
+ip-192-168-95-231.ec2.internal   Ready    <none>   38m   v1.35.6-eks-bca9cf6
+```
+
+---
+
+# 3. Infrastructure Layer
+
+This section covers all the infrastructure components used in the Amazon EKS cluster.
+
+---
+
+## 3.1 AWS Load Balancer Controller
+
+The AWS Load Balancer Controller provisions and manages AWS Application Load Balancers (ALB) and Network Load Balancers (NLB) directly from Kubernetes resources such as **Ingress**, **Service**, and **Gateway API** resources.
+
+---
+
+### Official Documentation
+
+- https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
+- https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/deploy/installation/
+
+---
+
+### Prerequisites
+
+Before installing the AWS Load Balancer Controller, ensure the following prerequisites are met.
+
+- Amazon EKS Cluster
+- kubectl configured
+- Helm installed
+- IAM OIDC Provider
+- IAM Roles for Service Accounts (IRSA)
+- Gateway API CRDs (Required if using Gateway API)
+
+---
+
+### Installation
+
+#### Step 1 - Create IAM OIDC Provider
+
+This step enables IAM Roles for Service Accounts (IRSA), allowing Kubernetes service accounts to securely assume AWS IAM roles without storing AWS credentials inside pods.
+
+> **Note**
+>
+> Skip this step if the OIDC provider is already created. In this project, the OIDC provider is provisioned through Terraform.
+
+```bash
+eksctl utils associate-iam-oidc-provider \
+    --region <region-code> \
+    --cluster <cluster-name> \
+    --approve
+```
+
+Verify
+
+```bash
+aws eks describe-cluster \
+--name <cluster-name> \
+--query cluster.identity.oidc.issuer
+```
+
+---
+
+#### Step 2 - Create IAM Policy
+
+Download the IAM policy required by the AWS Load Balancer Controller.
+
+```bash
+curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.14.1/docs/install/iam_policy.json
+```
+
+Create the IAM policy.
+
+```bash
+aws iam create-policy \
+    --policy-name AWSLoadBalancerControllerIAMPolicy \
+    --policy-document file://iam_policy.json
+```
+
+Expected Output
+
+```text
+arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy
+```
+
+---
+
+#### Step 3 - Create IAM Service Account (IRSA)
+
+```bash
+eksctl create iamserviceaccount \
+    --cluster=<cluster-name> \
+    --namespace=kube-system \
+    --name=aws-load-balancer-controller \
+    --attach-policy-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
+    --override-existing-serviceaccounts \
+    --region <region-code> \
+    --approve
+```
+
+Verify
+
+```bash
+kubectl get serviceaccount aws-load-balancer-controller -n kube-system
+
+NAME                           AGE
+aws-load-balancer-controller   49s
+```
+
+---
+
+#### Step 4 - Add Helm Repository
+
+```bash
+helm repo add eks https://aws.github.io/eks-charts
+
+helm repo update
+```
+
+Verify
+
+```bash
+helm repo list
+NAME                    URL                                                
+argo                    https://argoproj.github.io/argo-helm    
+```
+
+---
+
+#### Step 5 - Install AWS Load Balancer Controller
+
+```bash
+helm upgrade -i aws-load-balancer-controller \
+eks/aws-load-balancer-controller \
+-n kube-system \
+--set clusterName=<cluster-name> \
+--set region=<aws-region> \
+--set vpcId=vpc-070a82c6c0e55fd5d \
+--set serviceAccount.create=false \
+--set serviceAccount.name=aws-load-balancer-controller \
+--set controllerConfig.featureGates.NLBGatewayAPI=true \
+--set controllerConfig.featureGates.ALBGatewayAPI=true \
+--version 3.0.0
+```
+
+
+output:
+Release "aws-load-balancer-controller" does not exist. Installing it now.
+NAME: aws-load-balancer-controller
+LAST DEPLOYED: Sun Jul 26 17:29:20 2026
+NAMESPACE: kube-system
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+AWS Load Balancer controller installed!
+
+
+### Verify Installation
+
+```bash
+kubectl get deployment -n kube-system aws-load-balancer-controller
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+aws-load-balancer-controller   2/2     2            2           2m47s
+
+```
+
+## 3.1 Gateway API
+
+Gateway API is the next-generation networking API for Kubernetes that controls how external traffic reaches applications running inside the cluster. It is the successor to the traditional **Ingress** resource and provides a more flexible and standardized way to configure traffic routing using resources such as **GatewayClass**, **Gateway**, and **HTTPRoute**. :contentReference[oaicite:2]{index=2}
+
+In this project, Gateway API is used together with the **AWS Load Balancer Controller** to provision and manage AWS Application Load Balancers (ALB) and Network Load Balancers (NLB). Gateway API also enables advanced traffic management features such as canary deployments with Argo Rollouts. :contentReference[oaicite:0]{index=0}
+
+---
+
+### Official Documentation
+
+- https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/gateway/l7gateway/
+
+---
+
+## Installation
+
+### Step 1 - Install Standard Gateway API CRDs (Required)
+
+Install the standard Gateway API Custom Resource Definitions (CRDs). These resources are required for Gateway API functionality.
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
+```
+
+The following core Gateway API resources are installed:
+
+- GatewayClass
+- Gateway
+- HTTPRoute
+- ReferenceGrant
+
+---
+
+### Step 2 - Install Experimental Gateway API CRDs (Optional)
+
+Install the experimental Gateway API CRDs if your environment requires additional Layer 4 routing resources such as **TCPRoute**, **UDPRoute**, **TLSRoute**, or **GRPCRoute**.
+
+> **Note**
+>
+> This step is optional and is only required when using experimental Gateway API features.
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml
+```
+
+Additional resources installed include:
+
+- TCPRoute
+- UDPRoute
+- TLSRoute
+- GRPCRoute
+
+---
+
+### Step 3 - Install AWS Load Balancer Controller Gateway API CRDs
+
+Install the AWS Load Balancer Controller specific Gateway API CRDs. These CRDs enable the controller to provision and manage AWS Application Load Balancers (ALB) and Network Load Balancers (NLB) from Gateway API resources.
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/refs/heads/main/config/crd/gateway/gateway-crds.yaml
+```
+
+---
+
+## Verify Installation
+
+Verify that the Gateway API CRDs have been installed successfully.
+
+```bash
+kubectl get crds | grep gateway
+```
+
+Expected Output
+
+```text
+gatewayclasses.gateway.networking.k8s.io
+gateways.gateway.networking.k8s.io
+httproutes.gateway.networking.k8s.io
+referencegrants.gateway.networking.k8s.io
+```
+---
+
+## Create GatewayClass
+
+A **GatewayClass** defines which controller is responsible for managing Gateway resources. Since this project uses the **AWS Load Balancer Controller**, the `controllerName` is set to `gateway.k8s.aws/alb`. Any Gateway referencing this GatewayClass will be managed by the AWS Load Balancer Controller. :contentReference[oaicite:0]{index=0}
+
+Create the GatewayClass manifest.
+
+**gateway-class.yaml**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: GatewayClass
+metadata:
+  name: aws-alb-gateway-class
+spec:
+  controllerName: gateway.k8s.aws/alb
+```
+
+Apply the manifest.
+
+```bash
+kubectl apply -f gateway-class.yaml
+```
+
+Verify
+
+```bash
+kubectl get gatewayclass
+
+NAME                    CONTROLLER            ACCEPTED   AGE
+aws-alb-gateway-class   gateway.k8s.aws/alb   True       7s
+```
+
+---
+
+## Create LoadBalancerConfiguration
+
+The **LoadBalancerConfiguration** resource is specific to the **AWS Load Balancer Controller**. It allows you to customize how the AWS Application Load Balancer (ALB) is created, including the scheme, listeners, certificates, security groups, and other load balancer settings. This resource is **not required** by all Gateway API controllers. :contentReference[oaicite:1]{index=1}
+
+Create the LoadBalancerConfiguration manifest.
+
+**alb-config.yaml**
+
+```yaml
+apiVersion: gateway.k8s.aws/v1beta1
+kind: LoadBalancerConfiguration
+metadata:
+  name: app-gw-lbconfig
+  namespace: default
+spec:
+  scheme: internet-facing
+  listenerConfigurations:
+    - protocolPort: HTTPS:443
+      defaultCertificate: <certificate-arn>
+```
+
+Apply the manifest.
+
+```bash
+kubectl apply -f alb-config.yaml
+```
+
+Verify
+
+```bash
+kubectl get loadbalancerconfigurations -n default
+```
+
+---
+
+## Create Gateway
+
+A **Gateway** acts as the entry point for external traffic into the Kubernetes cluster. It references the previously created **GatewayClass** and **LoadBalancerConfiguration**, allowing the AWS Load Balancer Controller to provision an AWS Application Load Balancer (ALB). :contentReference[oaicite:2]{index=2}
+
+Create the Gateway manifest.
+
+**gateway.yaml**
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: Gateway
+metadata:
+  name: app-alb-gateway
+  namespace: default
+spec:
+  gatewayClassName: aws-alb-gateway-class
+  infrastructure:
+    parametersRef:
+      kind: LoadBalancerConfiguration
+      name: app-gw-lbconfig
+      group: gateway.k8s.aws
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      #hostname: ""     #this should be provided inside the httproute object corresponding to the application.
+      allowedRoutes:
+        namespaces:
+          from: All
+
+    - name: https
+      protocol: HTTPS
+      port: 443
+      #hostname: ""     #this should be provided inside the httproute object corresponding to the application.
+      allowedRoutes:
+        namespaces:
+          from: All
+```
+
+Apply the manifest.
+
+```bash
+kubectl apply -f gateway.yaml
+```
+
+---
+
+## Verify Gateway
+
+Verify that the Gateway resource has been created successfully.
+
+```bash
+kubectl get gateway -A
+```
+
+Expected Output
+
+```text
+NAME              CLASS                   ADDRESS                                                                  PROGRAMMED   AGE
+app-alb-gateway   aws-alb-gateway-class   k8s-default-appalbga-65aa25bc91-1838810992.us-east-1.elb.amazonaws.com   Unknown      5s
+```
+
+You can also verify that an **Application Load Balancer (ALB)** has been created in the **AWS Management Console** under **EC2 → Load Balancers**. Once the controller finishes reconciliation, the `PROGRAMMED` status changes to `True`, indicating that the Gateway has been successfully provisioned. :contentReference[oaicite:3]{index=3}
+
+
+
 
 
