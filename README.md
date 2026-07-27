@@ -999,5 +999,150 @@ kubectl logs external-dns-5fcc48d4f7-bx96c -n external-dns
 
 ---
 
+---
+
+## How Gateway API, AWS Load Balancer Controller and ExternalDNS Work Together
+
+At this stage, the AWS Application Load Balancer (ALB) has already been created by the AWS Load Balancer Controller using the **Gateway** and **LoadBalancerConfiguration** resources.
+
+Initially, the ALB only exists with its listeners. No application is exposed until an **HTTPRoute** is created.
+
+When an application is installed, lets take an example of ArgoCD 
+So in this case the Helm chart creates an **HTTPRoute** resource with the hostname:
+
+```yaml
+hostnames:
+  - argocd.haulerlong.sbs
+```
+
+and a backend service:
+
+```yaml
+backendRefs:
+- name: argo-cd-argocd-server
+  port: 80
+```
+
+The AWS Load Balancer Controller continuously watches all Gateway API resources inside the cluster.
+
+Once it detects this new HTTPRoute, it performs the following actions automatically:
+
+1. Validates that the HTTPRoute references an existing Gateway.
+2. Creates a Listener Rule on the existing AWS Application Load Balancer.
+3. Creates an AWS Target Group for the backend Kubernetes Service.
+4. Creates a Kubernetes TargetGroupBinding resource.
+5. Registers the backend Pods into the AWS Target Group.
+
+The resulting traffic flow becomes:
+
+```
+
+Internet
+↓
+
+AWS Application Load Balancer
+
+↓
+
+Listener Rule
+Host = argocd.haulerlong.sbs
+
+↓
+
+Target Group
+
+↓
+
+TargetGroupBinding
+
+↓
+
+argo-cd-argocd-server Service
+
+↓
+
+ArgoCD Pods
+
+```
+
+At the same time, the **ExternalDNS** controller is also watching Gateway API resources.
+
+It detects the hostname:
+
+```yaml
+hostnames:
+- argocd.haulerlong.sbs
+```
+
+and automatically creates a corresponding Route53 DNS record pointing to the AWS Application Load Balancer.
+
+As a result, users can access ArgoCD using:
+
+```
+
+https://argocd.haulerlong.sbs
+
+```
+
+without manually creating any DNS records.
+
+---
+
+## TargetGroupConfiguration vs TargetGroupBinding
+
+These two resources serve different purposes.
+
+### TargetGroupConfiguration
+
+TargetGroupConfiguration defines **how** the AWS Target Group should be created.
+
+Examples include:
+
+- Target Type (IP / Instance)
+- Health Checks
+- Stickiness
+- Attributes
+- Protocol Settings
+
+Example:
+
+```yaml
+kind: TargetGroupConfiguration
+spec:
+  targetReference:
+    name: argo-cd-argocd-server
+  defaultConfiguration:
+    targetType: ip
+```
+
+---
+
+### TargetGroupBinding
+
+TargetGroupBinding is automatically created by the AWS Load Balancer Controller.
+
+Its responsibility is to associate an AWS Target Group with a Kubernetes Service.
+
+```
+
+AWS Target Group
+
+↓
+
+TargetGroupBinding
+
+↓
+
+Kubernetes Service
+
+↓
+
+Pods
+
+```
+
+In other words,
+
+TargetGroupConfiguration defines **how the Target Group should be configured**, while TargetGroupBinding connects that Target Group to the backend Service.
 
 
