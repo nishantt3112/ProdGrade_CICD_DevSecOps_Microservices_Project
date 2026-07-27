@@ -1210,9 +1210,7 @@ configs:
 >
 > The AWS Application Load Balancer is responsible for TLS termination using the ACM certificate configured on the Gateway. Therefore, ArgoCD serves plain HTTP traffic inside the cluster while HTTPS is handled at the load balancer.
 
----
 
-> **Note**
 >
 > This project renders the Helm charts during the Jenkins CI pipeline using `helm template`. The generated Kubernetes manifests are committed to the GitOps repository, which is monitored by ArgoCD.
 >
@@ -1236,10 +1234,6 @@ configs:
     create: true
     kustomize.buildOptions: "--enable-helm"   # Disabled in current project
 ```
-
-> **Why is this required?**
->
-> By default, ArgoCD disables Helm support inside Kustomize because it is considered an optional plugin. Since this project uses **Kustomize** together with **Helm Charts**, enabling `--enable-helm` allows ArgoCD to render Helm charts during the manifest generation process.
 
 ---
 
@@ -1308,7 +1302,7 @@ kubectl apply -f target-grp-config.yaml
 Once the installation is complete and the DNS record has been created by **ExternalDNS**, access the ArgoCD UI using:
 
 ```text
-https://argocd.devopsdock.site
+https://argocd.haulerlong.sbs
 ```
 ---
 
