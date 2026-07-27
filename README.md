@@ -215,13 +215,13 @@ ip-192-168-95-231.ec2.internal   Ready    <none>   38m   v1.35.6-eks-bca9cf6
 
 ---
 
-# 3. Infrastructure Layer
+# Infrastructure Layer
 
 This section covers all the infrastructure components used in the Amazon EKS cluster.
 
 ---
 
-## 3.1 AWS Load Balancer Controller
+## AWS Load Balancer Controller
 
 The AWS Load Balancer Controller provisions and manages AWS Application Load Balancers (ALB) and Network Load Balancers (NLB) directly from Kubernetes resources such as **Ingress**, **Service**, and **Gateway API** resources.
 
@@ -356,20 +356,6 @@ eks/aws-load-balancer-controller \
 --version 3.0.0
 ```
 
-
-output:
-Release "aws-load-balancer-controller" does not exist. Installing it now.
-NAME: aws-load-balancer-controller
-LAST DEPLOYED: Sun Jul 26 17:29:20 2026
-NAMESPACE: kube-system
-STATUS: deployed
-REVISION: 1
-DESCRIPTION: Install complete
-TEST SUITE: None
-NOTES:
-AWS Load Balancer controller installed!
-
-
 ### Verify Installation
 
 ```bash
@@ -379,11 +365,11 @@ aws-load-balancer-controller   2/2     2            2           2m47s
 
 ```
 
-## 3.1 Gateway API
+## Gateway API
 
 Gateway API is the next-generation networking API for Kubernetes that controls how external traffic reaches applications running inside the cluster. It is the successor to the traditional **Ingress** resource and provides a more flexible and standardized way to configure traffic routing using resources such as **GatewayClass**, **Gateway**, and **HTTPRoute**. :contentReference[oaicite:2]{index=2}
 
-In this project, Gateway API is used together with the **AWS Load Balancer Controller** to provision and manage AWS Application Load Balancers (ALB) and Network Load Balancers (NLB). Gateway API also enables advanced traffic management features such as canary deployments with Argo Rollouts. :contentReference[oaicite:0]{index=0}
+In this project, Gateway API is used together with the **AWS Load Balancer Controller** to provision and manage AWS Application Load Balancers (ALB) and Network Load Balancers (NLB). Gateway API also enables advanced traffic management features such as canary deployments with Argo Rollouts.
 
 ---
 
@@ -463,7 +449,7 @@ referencegrants.gateway.networking.k8s.io
 
 ## Create GatewayClass
 
-A **GatewayClass** defines which controller is responsible for managing Gateway resources. Since this project uses the **AWS Load Balancer Controller**, the `controllerName` is set to `gateway.k8s.aws/alb`. Any Gateway referencing this GatewayClass will be managed by the AWS Load Balancer Controller. :contentReference[oaicite:0]{index=0}
+A **GatewayClass** defines which controller is responsible for managing Gateway resources. Since this project uses the **AWS Load Balancer Controller**, the `controllerName` is set to `gateway.k8s.aws/alb`. Any Gateway referencing this GatewayClass will be managed by the AWS Load Balancer Controller.
 
 Create the GatewayClass manifest.
 
@@ -497,7 +483,7 @@ aws-alb-gateway-class   gateway.k8s.aws/alb   True       7s
 
 ## Create LoadBalancerConfiguration
 
-The **LoadBalancerConfiguration** resource is specific to the **AWS Load Balancer Controller**. It allows you to customize how the AWS Application Load Balancer (ALB) is created, including the scheme, listeners, certificates, security groups, and other load balancer settings. This resource is **not required** by all Gateway API controllers. :contentReference[oaicite:1]{index=1}
+The **LoadBalancerConfiguration** resource is specific to the **AWS Load Balancer Controller**. It allows you to customize how the AWS Application Load Balancer (ALB) is created, including the scheme, listeners, certificates, security groups, and other load balancer settings. This resource is **not required** by all Gateway API controllers.
 
 Create the LoadBalancerConfiguration manifest.
 
@@ -532,7 +518,7 @@ kubectl get loadbalancerconfigurations -n default
 
 ## Create Gateway
 
-A **Gateway** acts as the entry point for external traffic into the Kubernetes cluster. It references the previously created **GatewayClass** and **LoadBalancerConfiguration**, allowing the AWS Load Balancer Controller to provision an AWS Application Load Balancer (ALB). :contentReference[oaicite:2]{index=2}
+A **Gateway** acts as the entry point for external traffic into the Kubernetes cluster. It references the previously created **GatewayClass** and **LoadBalancerConfiguration**, allowing the AWS Load Balancer Controller to provision an AWS Application Load Balancer (ALB).
 
 Create the Gateway manifest.
 
@@ -555,7 +541,7 @@ spec:
     - name: http
       protocol: HTTP
       port: 80
-      #hostname: ""     #this should be provided inside the httproute object corresponding to the application.
+      #hostname: ""     #this would be provided inside the httproute object corresponding to the application.
       allowedRoutes:
         namespaces:
           from: All
@@ -563,7 +549,7 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
-      #hostname: ""     #this should be provided inside the httproute object corresponding to the application.
+      #hostname: ""     #this would be provided inside the httproute object corresponding to the application.
       allowedRoutes:
         namespaces:
           from: All
@@ -592,7 +578,7 @@ NAME              CLASS                   ADDRESS                               
 app-alb-gateway   aws-alb-gateway-class   k8s-default-appalbga-65aa25bc91-1838810992.us-east-1.elb.amazonaws.com   Unknown      5s
 ```
 
-You can also verify that an **Application Load Balancer (ALB)** has been created in the **AWS Management Console** under **EC2 → Load Balancers**. Once the controller finishes reconciliation, the `PROGRAMMED` status changes to `True`, indicating that the Gateway has been successfully provisioned. :contentReference[oaicite:3]{index=3}
+You can also verify that an **Application Load Balancer (ALB)** has been created in the **AWS Management Console** under **EC2 → Load Balancers**. Once the controller finishes reconciliation, the `PROGRAMMED` status changes to `True`, indicating that the Gateway has been successfully provisioned.
 
 
 
