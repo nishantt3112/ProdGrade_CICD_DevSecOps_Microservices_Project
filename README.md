@@ -1473,3 +1473,383 @@ This allows HTTPRoute resources from any namespace in the cluster to reference t
 The AWS Load Balancer Controller watches all HTTPRoute resources across the cluster and automatically configures the existing Application Load Balancer with the appropriate listener rules and target groups for each application.
 
 ---
+
+
+
+# Argo Rollouts
+
+## Overview
+
+Argo Rollouts is a **Kubernetes Progressive Delivery Controller** that extends the native Deployment resource by introducing a new **Rollout Custom Resource Definition (CRD)**. It enables advanced deployment strategies such as **Canary** and **Blue-Green** deployments.
+
+In this project, **Canary Deployment** has been implemented for the **Frontend Service** using **Gateway API** and the **AWS Load Balancer Controller**. Although Argo Rollouts can be used with any microservice, the Frontend service was selected because it is the application's entry point, making traffic shifting easy to visualize during the deployment process.
+
+## References
+
+- Argo Rollouts Official Documentation:  
+  https://argoproj.github.io/argo-rollouts/
+
+---
+
+# Installation
+
+## Step 1 - Create Namespace
+
+```bash
+kubectl create namespace argo-rollouts
+```
+---
+
+## Step 2 - Add Helm Repository
+
+```bash
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+```
+---
+
+## Enable Gateway API Traffic Router Plugin
+
+Argo Rollouts does not natively know how to modify Gateway API resources. Therefore, the **Gateway API Traffic Router Plugin** must be installed via configmap so that the Rollouts controller can update HTTPRoute backend weights during each Canary step.
+
+### argo-rollouts-values.yaml
+```
+controller:
+  trafficRouterPlugins:
+    - name: "argoproj-labs/gatewayAPI"
+      location: "https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/download/v0.5.0/gatewayapi-plugin-linux-amd64"
+```
+
+---
+
+## Expose Argo Rollouts Dashboard using Gateway API
+
+### argo-rollouts-values.yaml
+```
+dashboard:
+  httproute:
+    enabled: true
+
+    parentRefs:
+      - group: gateway.networking.k8s.io
+        namespace: default
+        kind: Gateway
+        name: app-alb-gateway
+        sectionName: http
+
+      - group: gateway.networking.k8s.io
+        namespace: default
+        kind: Gateway
+        name: app-alb-gateway
+        sectionName: https
+
+    hostnames:
+      - argorollouts.haulerlong.sbs
+```
+---
+
+## Step 3 - Install Argo Rollouts
+
+```bash
+helm upgrade --install argo-rollouts argo/argo-rollouts \
+  --namespace argo-rollouts \
+  --create-namespace \
+  -f argo-rollouts-values.yaml
+```
+---
+
+## Step 4 - Verify
+```bash
+kubectl get pods -n argorollouts
+
+NAME                                       READY   STATUS    RESTARTS   AGE
+argo-rollouts-8b8c4989f-gjhfk              1/1     Running   0          6h38m
+argo-rollouts-8b8c4989f-xzt2q              1/1     Running   0          6h38m
+argo-rollouts-dashboard-57f564884b-dq55z   1/1     Running   0          6h38m
+```
+---
+
+### The Rollout object defines the deployment strategy.
+
+frontend.yaml
+```
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: frontend
+  strategy:
+    canary:
+      stableService: frontend-stable
+      canaryService: frontend-canary
+      trafficRouting:
+        plugins:
+          argoproj-labs/gatewayAPI:
+            namespace: boutique-app
+            httpRoutes:
+              - name: http-app-route
+      maxSurge: 1
+      maxUnavailable: 0
+      steps:
+        - setWeight: 20
+        - pause:
+            duration: 90s
+        - setWeight: 50
+        - pause:
+            duration: 90s
+        - setWeight: 100
+```
+
+# HTTPRoute Configuration
+
+The application uses a single **HTTPRoute** containing both backend Services.
+
+```
+backendRefs:
+  - name: frontend-stable
+    port: 80
+    weight: 100
+
+  - name: frontend-canary
+    port: 80
+    weight: 0
+```
+
+Initially,
+
+- **100%** of the traffic is routed to the stable version.
+- **0%** of the traffic is routed to the canary version.
+
+During the rollout process, Argo Rollouts updates only the backend weights inside the HTTPRoute. No additional HTTPRoute resources are created.
+
+
+## ArgoCD Configuration for HTTPRoute Changes
+
+During the canary rollout, **Argo Rollouts dynamically modifies the HTTPRoute backend weights** to shift traffic between stable and canary services.
+
+For example:
+
+```
+frontend-stable     → 80% Traffic
+frontend-canary     → 20% Traffic
+```
+
+These weight changes are performed by the Argo Rollouts controller, not from Git.
+
+Since ArgoCD continuously compares the live Kubernetes cluster state with the Git repository state(desired state), these runtime changes can make the application appear as **OutOfSync**.
+
+To prevent ArgoCD from reverting these changes, we configure `ignoreDifferences` in the ArgoCD ConfigMap and ignore the HTTPRoute changes managed by Argo Rollouts.
+
+
+### argocd-values-9.4.0.yaml 
+```
+data:
+  resource.customizations.ignoreDifferences.gateway.networking.k8s.io_HTTPRoute: |
+    jqPathExpressions:
+      - select(.metadata.labels["rollouts.argoproj.io/gatewayapi-canary"] == "in-progress") | .spec.rules
+```
+
+After this configuration:
+
+- Argo Rollouts can update HTTPRoute traffic weights during canary progression.
+- ArgoCD continues managing the application from Git.
+- Temporary traffic changes do not cause false `OutOfSync` status.
+
+---
+
+# Kubernetes Resources Used
+
+| Resource | Purpose |
+|----------|----------|
+| Rollout | Replaces the native Deployment and controls the Canary deployment process |
+| frontend-stable Service | Routes production traffic to the stable ReplicaSet |
+| frontend-canary Service | Routes Canary traffic to the new ReplicaSet |
+| HTTPRoute | Routes incoming traffic to both Services using configurable backend weights |
+| Gateway | Entry point for external traffic |
+| TargetGroupConfiguration | Creates AWS Target Groups for each backend Service |
+| AWS Load Balancer Controller | Converts Gateway API resources into AWS ALB configuration |
+
+---
+
+# Why Two Services?
+
+In a normal Kubernetes Deployment, a single Service routes traffic to all application pods.
+
+However, during a Canary Deployment, we need to route traffic separately to two different application versions:
+
+- **Stable Version (v1)** → Current production version
+- **Canary Version (v2)** → New version being tested
+
+Therefore, two Kubernetes Services are created:
+
+```text
+                 HTTPRoute
+                      │
+      ┌───────────────┴───────────────┐
+      ▼                               ▼
+frontend-stable                frontend-canary
+      │                               │
+      ▼                               ▼
+ Stable ReplicaSet (v1)        Canary ReplicaSet (v2)
+```
+
+### frontend-stable
+
+Initially points to the existing production ReplicaSet (v1).
+
+### frontend-canary
+
+Initially points to the newly created ReplicaSet (v2).
+
+During the rollout, Argo Rollouts adds a unique **`rollouts-pod-template-hash` label** to each ReplicaSet's pods.
+
+The `frontend-stable` and `frontend-canary` Services use this label in their selectors to identify which ReplicaSet should receive traffic.
+
+---
+
+# How Traffic Shifting Works
+
+The Rollout object defines the deployment strategy.
+
+For every step,
+
+1. Argo Rollouts reads the strategy.
+2. The Gateway API Plugin updates the HTTPRoute backend weights.
+3. AWS Load Balancer Controller detects the HTTPRoute changes.
+4. The ALB listener rules are updated.
+5. Incoming requests are gradually shifted to the new version.
+
+> **Note**
+>
+> Traffic percentage is **not** equal to the number of Pods.
+>
+> For example, even if there are **10 frontend Pods**, **90% of the requests may still reach a single Pod**, depending on the Kubernetes Service load-balancing algorithm and the AWS ALB request distribution.
+
+---
+
+# End-to-End Canary Deployment Workflow
+
+```text
+Developer pushes new code to Git
+            │
+            ▼
+Jenkins Pipeline builds new Docker Image
+            │
+            ▼
+Image pushed to Amazon ECR
+            │
+            ▼
+GitOps Repository updated
+            │
+            ▼
+ArgoCD detects Git changes
+            │
+            ▼
+Rollout object is updated
+            │
+            ▼
+Argo Rollouts creates a new ReplicaSet
+            │
+            ▼
+New ReplicaSet Pods are created with a unique
+rollouts-pod-template-hash label
+            │
+            ▼
+frontend-canary Service selector is updated with
+the new ReplicaSet pod hash
+
+frontend-stable Service selector continues using
+the old ReplicaSet pod hash
+            │
+            ▼
+Gateway API Plugin updates HTTPRoute backend weights
+            │
+            ▼
+AWS Load Balancer Controller updates ALB Target Groups
+            │
+            ▼
+Traffic gradually shifts to the new application version
+            │
+            ▼
+Rollout completed
+            │
+            ▼
+frontend-stable now points to the new ReplicaSet
+            │
+            ▼
+Old ReplicaSet is scaled down
+
+
+================= USER ACCESS FLOW =================
+
+
+End User accesses application URL
+            │
+            ▼
+Route53 DNS resolves application domain
+            │
+            ▼
+Request reaches AWS Application Load Balancer (ALB)
+            │
+            ▼
+ALB forwards request to Gateway API Listener
+            │
+            ▼
+Gateway API HTTPRoute applies traffic routing rules
+            │
+            ▼
+HTTPRoute forwards traffic based on weights
+
+            │
+            ├────────────────────────────┐
+            │                            │
+            ▼                            ▼
+
+frontend-stable Service          frontend-canary Service
+
+            │                            │
+            ▼                            ▼
+
+Stable ReplicaSet Pods       Canary ReplicaSet Pods
+            |                           |
+rollouts-pod-template-hash:  rollouts-pod-template-hash:
+             abc123                       xyz789
+
+              |                         |
+              ▼                         ▼
+
+        Frontend Pods              Frontend Pods
+
+              |                         |
+              +------------+------------+
+                           |
+                           ▼
+
+              Response returned to End User
+```
+---
+
+# Project Implementation
+
+In this project, only the **Frontend Service** has been converted into a Rollout object to demonstrate Progressive Delivery.
+
+During testing:
+
+- A small application change was made to the Frontend service.
+- Jenkins built a new Docker image.
+- The image was pushed to Amazon ECR.
+- The GitOps repository was automatically updated.
+- Argo CD synchronized the new Rollout.
+- Argo Rollouts created a new ReplicaSet.
+- The Gateway API Plugin updated the HTTPRoute backend weights.
+- AWS Load Balancer Controller updated the ALB listener rules.
+- Traffic was gradually shifted from the old Frontend version to the new version without downtime.
+
+This demonstrates how Progressive Delivery can be achieved in Kubernetes using **Argo Rollouts**, **Gateway API**, **AWS Load Balancer Controller**, and **Amazon Application Load Balancer (ALB)**.
