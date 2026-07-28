@@ -1111,7 +1111,7 @@ spec:
   #   name: app-alb-gateway
   #   sectionName: http
   - group: gateway.networking.k8s.io
-    #namespace: default
+    namespace: default
     kind: Gateway
     name: app-alb-gateway
     sectionName: https
