@@ -326,7 +326,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: adservice
-  namespace: boutique-app
+ # namespace: boutique-app
   labels:
     app: adservice
 spec:
@@ -1151,7 +1151,7 @@ spec:
       trafficRouting:
         plugins:
           argoproj-labs/gatewayAPI:
-            namespace: boutique-app
+            namespace: ecommerce-app
             httpRoutes:
               - name: http-app-route
       
